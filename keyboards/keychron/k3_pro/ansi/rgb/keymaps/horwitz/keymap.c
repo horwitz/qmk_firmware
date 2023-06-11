@@ -60,7 +60,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 bool rgb_matrix_indicators_user(void) {
     uint8_t layer = biton32(layer_state);
-    // set all lights yellow when fn is held down layer (i.e., when on layer 1 or 3)
+    // when fn is held down, set lights yellow on keys whose behavior changed from base layer; set others to blue
     // inspired by https://www.reddit.com/r/olkb/comments/kpro3p/comment/h3nb56h
     switch (layer) {
         case 0:
@@ -68,7 +68,36 @@ bool rgb_matrix_indicators_user(void) {
             break;
         case 1:
         case 3:
-            rgb_matrix_set_color_all(255, 255, 0);
+            rgb_matrix_set_color_all(0, 0, 255);
+            rgb_matrix_set_color(1, 255, 255, 0);
+            rgb_matrix_set_color(2, 255, 255, 0);
+            rgb_matrix_set_color(3, 255, 255, 0);
+            rgb_matrix_set_color(4, 255, 255, 0);
+            rgb_matrix_set_color(5, 255, 255, 0);
+            rgb_matrix_set_color(6, 255, 255, 0);
+            rgb_matrix_set_color(7, 255, 255, 0);
+            rgb_matrix_set_color(8, 255, 255, 0);
+            rgb_matrix_set_color(9, 255, 255, 0);
+            rgb_matrix_set_color(10, 255, 255, 0);
+            rgb_matrix_set_color(11, 255, 255, 0);
+            rgb_matrix_set_color(12, 255, 255, 0);
+            rgb_matrix_set_color(15, 255, 255, 0);
+            rgb_matrix_set_color(17, 255, 255, 0);
+            rgb_matrix_set_color(18, 255, 255, 0);
+            rgb_matrix_set_color(19, 255, 255, 0);
+            rgb_matrix_set_color(31, 255, 255, 0);
+            rgb_matrix_set_color(32, 255, 255, 0);
+            rgb_matrix_set_color(33, 255, 255, 0);
+            rgb_matrix_set_color(34, 255, 255, 0);
+            rgb_matrix_set_color(35, 255, 255, 0);
+            rgb_matrix_set_color(36, 255, 255, 0);
+            rgb_matrix_set_color(47, 255, 255, 0);
+            rgb_matrix_set_color(48, 255, 255, 0);
+            rgb_matrix_set_color(49, 255, 255, 0);
+            rgb_matrix_set_color(50, 255, 255, 0);
+            rgb_matrix_set_color(51, 255, 255, 0);
+            rgb_matrix_set_color(65, 255, 255, 0);
+            rgb_matrix_set_color(66, 255, 255, 0);
             break;
     }
 
