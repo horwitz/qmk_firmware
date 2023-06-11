@@ -62,6 +62,12 @@ bool rgb_matrix_indicators_user(void) {
     uint8_t layer = biton32(layer_state);
     // when fn is held down, set lights yellow on keys whose behavior changed from base layer; set others to blue
     // inspired by https://www.reddit.com/r/olkb/comments/kpro3p/comment/h3nb56h
+    /*
+     * why [offset]? rgb_matrix_set_color's first appears to be based on an index of keys _not_ including KC_NO--there
+     * are 96 (=[MATRIX_ROWS] * [MATRIX_COLS]) keycodes in each keymaps[layer], but (apparently) the non-KC_NO keys are
+     * indexed 0-83 (and there are 96-84=12 instances of KC_NO (per layer))... see LAYOUT_ansi_84's definition in
+     * obj_keychron_k3_pro_ansi_rgb/src/default_keyboard.h
+     */
     switch (layer) {
         case 0:
         case 2:
@@ -69,35 +75,21 @@ bool rgb_matrix_indicators_user(void) {
         case 1:
         case 3:
             rgb_matrix_set_color_all(0, 0, 255);
-            rgb_matrix_set_color(1, 255, 255, 0);
-            rgb_matrix_set_color(2, 255, 255, 0);
-            rgb_matrix_set_color(3, 255, 255, 0);
-            rgb_matrix_set_color(4, 255, 255, 0);
-            rgb_matrix_set_color(5, 255, 255, 0);
-            rgb_matrix_set_color(6, 255, 255, 0);
-            rgb_matrix_set_color(7, 255, 255, 0);
-            rgb_matrix_set_color(8, 255, 255, 0);
-            rgb_matrix_set_color(9, 255, 255, 0);
-            rgb_matrix_set_color(10, 255, 255, 0);
-            rgb_matrix_set_color(11, 255, 255, 0);
-            rgb_matrix_set_color(12, 255, 255, 0);
-            rgb_matrix_set_color(15, 255, 255, 0);
-            rgb_matrix_set_color(17, 255, 255, 0);
-            rgb_matrix_set_color(18, 255, 255, 0);
-            rgb_matrix_set_color(19, 255, 255, 0);
-            rgb_matrix_set_color(31, 255, 255, 0);
-            rgb_matrix_set_color(32, 255, 255, 0);
-            rgb_matrix_set_color(33, 255, 255, 0);
-            rgb_matrix_set_color(34, 255, 255, 0);
-            rgb_matrix_set_color(35, 255, 255, 0);
-            rgb_matrix_set_color(36, 255, 255, 0);
-            rgb_matrix_set_color(47, 255, 255, 0);
-            rgb_matrix_set_color(48, 255, 255, 0);
-            rgb_matrix_set_color(49, 255, 255, 0);
-            rgb_matrix_set_color(50, 255, 255, 0);
-            rgb_matrix_set_color(51, 255, 255, 0);
-            rgb_matrix_set_color(65, 255, 255, 0);
-            rgb_matrix_set_color(66, 255, 255, 0);
+            int offset = 0;
+            for (int i = 0; i < MATRIX_ROWS * MATRIX_COLS; ++i) {
+                int col = i % MATRIX_COLS;
+                int row = i / MATRIX_COLS;
+                switch (keymaps[layer][row][col]) {
+                    case KC_TRNS:
+                        break;
+                    case KC_NO:
+                        ++offset;
+                        break;
+                    default:
+                        rgb_matrix_set_color(i - offset, 255, 255, 0);
+                        break;
+                }
+            }
             break;
     }
 
