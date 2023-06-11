@@ -57,3 +57,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  BAT_LVL,  NK_TOGG,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_TRNS,                                KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS)
 };
+
+bool rgb_matrix_indicators_user(void) {
+    uint8_t layer = biton32(layer_state);
+    // set all lights yellow when fn is held down layer (i.e., when on layer 1 or 3)
+    // inspired by https://www.reddit.com/r/olkb/comments/kpro3p/comment/h3nb56h
+    switch (layer) {
+        case 0:
+        case 2:
+            break;
+        case 1:
+        case 3:
+            rgb_matrix_set_color_all(255, 255, 0);
+            break;
+    }
+
+    return false;
+}
