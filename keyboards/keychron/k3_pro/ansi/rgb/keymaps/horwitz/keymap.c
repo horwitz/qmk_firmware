@@ -118,6 +118,7 @@ bool rgb_matrix_indicators_user(void) {
             break;
         case MAC_FN:
         case WIN_FN:
+//            rgb_matrix_set_color_all(255, 255, 0); // uncomment to have transparent keys appear solid blue
             for (int i = 0; i < NUM_KEYS; ++i) {
                 if (BITTEST(layers_used_indices[layer], i)) {
                     rgb_matrix_set_color(i, 255, 255, 0);
