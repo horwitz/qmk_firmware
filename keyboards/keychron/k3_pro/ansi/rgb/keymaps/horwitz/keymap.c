@@ -113,11 +113,11 @@ bool rgb_matrix_indicators_user(void) {
         layer_used_indices_is_initialized[layer] = true;
     }
     switch (layer) {
-        case 0:
-        case 2:
+        case MAC_BASE:
+        case WIN_BASE:
             break;
-        case 1:
-        case 3:
+        case MAC_FN:
+        case WIN_FN:
             for (int i = 0; i < NUM_KEYS; ++i) {
                 if (BITTEST(layers_used_indices[layer], i)) {
                     rgb_matrix_set_color(i, 255, 255, 0);
