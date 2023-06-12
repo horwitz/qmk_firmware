@@ -15,6 +15,15 @@
  */
 
 #include QMK_KEYBOARD_H
+#include <limits.h>		/* for CHAR_BIT */
+
+// bit-set logic (from https://c-faq.com/misc/bitsets.html)
+#define BITMASK(b) (1 << ((b) % CHAR_BIT))
+#define BITSLOT(b) ((b) / CHAR_BIT)
+#define BITSET(a, b) ((a)[BITSLOT(b)] |= BITMASK(b))
+#define BITCLEAR(a, b) ((a)[BITSLOT(b)] &= ~BITMASK(b))
+#define BITTEST(a, b) ((a)[BITSLOT(b)] & BITMASK(b))
+#define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
 
 // clang-format off
 enum layers{
@@ -23,6 +32,8 @@ enum layers{
   WIN_BASE,
   WIN_FN
 };
+#define NUM_LAYERS 4 // TODO? derive from [layers]
+#define NUM_KEYS 84 // TODO? derive from... somewhere
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [MAC_BASE] = LAYOUT_ansi_84(
@@ -58,16 +69,49 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TRNS,  KC_TRNS,  KC_TRNS,                                KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS)
 };
 
+/*
+ * initializes [layer_used_indices] as a bit set representing which indices (0-83) are used in the given [layer]
+ * ("used" = not KC_TRNS)
+ *
+ * why [offset]? rgb_matrix_set_color's first appears to be based on an index of keys _not_ including KC_NO--there
+ * are 96 (=[MATRIX_ROWS] * [MATRIX_COLS]) keycodes in each keymaps[layer], but (apparently) the non-KC_NO keys are
+ * indexed 0-83 (and there are 96-84=12 instances of KC_NO (per layer))... see LAYOUT_ansi_84's definition in
+ * obj_keychron_k3_pro_ansi_rgb/src/default_keyboard.h
+ */
+ void initialize_layer_used_indices(int layer, char* layer_used_indices) {
+    int offset = 0;
+    for (int i = 0; i < MATRIX_ROWS * MATRIX_COLS; ++i) {
+        int col = i % MATRIX_COLS;
+        int row = i / MATRIX_COLS;
+        switch (keymaps[layer][row][col]) {
+            case KC_TRNS:
+                break;
+            case KC_NO:
+                ++offset;
+                break;
+            default:
+                BITSET(layer_used_indices, i - offset);
+                break;
+        }
+    }
+}
+
+char layers_used_indices[NUM_LAYERS][BITNSLOTS(NUM_KEYS)];
+// TODO handle this differently(?) (e.g., just initialize all 4 immediately, rather than lazily (and with (presumably)
+//      less-readable code)
+bool layer_used_indices_is_initialized[NUM_LAYERS] = { false };
+
 bool rgb_matrix_indicators_user(void) {
     uint8_t layer = biton32(layer_state);
+
     // when fn is held down, set lights yellow on keys whose behavior changed from base layer; set others to blue
     // inspired by https://www.reddit.com/r/olkb/comments/kpro3p/comment/h3nb56h
-    /*
-     * why [offset]? rgb_matrix_set_color's first appears to be based on an index of keys _not_ including KC_NO--there
-     * are 96 (=[MATRIX_ROWS] * [MATRIX_COLS]) keycodes in each keymaps[layer], but (apparently) the non-KC_NO keys are
-     * indexed 0-83 (and there are 96-84=12 instances of KC_NO (per layer))... see LAYOUT_ansi_84's definition in
-     * obj_keychron_k3_pro_ansi_rgb/src/default_keyboard.h
-     */
+
+    // just initialize layers_used_indices once
+    if (!layer_used_indices_is_initialized[layer]) {
+        initialize_layer_used_indices(layer, layers_used_indices[layer]);
+        layer_used_indices_is_initialized[layer] = true;
+    }
     switch (layer) {
         case 0:
         case 2:
@@ -75,19 +119,9 @@ bool rgb_matrix_indicators_user(void) {
         case 1:
         case 3:
             rgb_matrix_set_color_all(0, 0, 255);
-            int offset = 0;
-            for (int i = 0; i < MATRIX_ROWS * MATRIX_COLS; ++i) {
-                int col = i % MATRIX_COLS;
-                int row = i / MATRIX_COLS;
-                switch (keymaps[layer][row][col]) {
-                    case KC_TRNS:
-                        break;
-                    case KC_NO:
-                        ++offset;
-                        break;
-                    default:
-                        rgb_matrix_set_color(i - offset, 255, 255, 0);
-                        break;
+            for (int i = 0; i < NUM_KEYS; ++i) {
+                if (BITTEST(layers_used_indices[layer], i)) {
+                    rgb_matrix_set_color(i, 255, 255, 0);
                 }
             }
             break;
