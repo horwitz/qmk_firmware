@@ -73,9 +73,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * initializes [layer_used_indices] as a bit set representing which indices (0-83) are used in the given [layer]
  * ("used" = not KC_TRNS)
  *
- * why [offset]? rgb_matrix_set_color's first appears to be based on an index of keys _not_ including KC_NO--there
- * are 96 (=[MATRIX_ROWS] * [MATRIX_COLS]) keycodes in each keymaps[layer], but (apparently) the non-KC_NO keys are
- * indexed 0-83 (and there are 96-84=12 instances of KC_NO (per layer))... see LAYOUT_ansi_84's definition in
+ * why [offset]? rgb_matrix_set_color's first argument appears to be based on an index of keys _not_ including
+ * KC_NO--there are 96 (=[MATRIX_ROWS] * [MATRIX_COLS]) keycodes in each keymaps[layer], but (apparently) the non-KC_NO
+ * keys are indexed 0-83 (and there are 96-84=12 instances of KC_NO (per layer))... see LAYOUT_ansi_84's definition in
  * obj_keychron_k3_pro_ansi_rgb/src/default_keyboard.h
  */
  void initialize_layer_used_indices(int layer, char* layer_used_indices) {
