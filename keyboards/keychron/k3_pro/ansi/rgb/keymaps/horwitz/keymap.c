@@ -118,7 +118,6 @@ bool rgb_matrix_indicators_user(void) {
             break;
         case 1:
         case 3:
-            rgb_matrix_set_color_all(0, 0, 255);
             for (int i = 0; i < NUM_KEYS; ++i) {
                 if (BITTEST(layers_used_indices[layer], i)) {
                     rgb_matrix_set_color(i, 255, 255, 0);
