@@ -107,7 +107,7 @@ bool rgb_matrix_indicators_user(void) {
     // when fn is held down, set lights yellow on keys whose behavior changed from base layer; set others to blue
     // inspired by https://www.reddit.com/r/olkb/comments/kpro3p/comment/h3nb56h
 
-    // just initialize layers_used_indices once
+    // just initialize layers_used_indices[layer] (at most) once per layer
     if (!layer_used_indices_is_initialized[layer]) {
         initialize_layer_used_indices(layer, layers_used_indices[layer]);
         layer_used_indices_is_initialized[layer] = true;
