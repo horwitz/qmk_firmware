@@ -168,213 +168,61 @@ char layers_used_indices[NUM_LAYERS][NUM_KEYS];
 //      less-readable code)
 int layer_used_indices_size[NUM_LAYERS] = { -1, -1, -1, -1 };
 
-void set_hue_if_pressed(int hue, keyrecord_t* record) {
-    if (record->event.pressed) {
-        rgb_matrix_mode(1);
-        rgb_matrix_sethsv(hue, 255, 255);
-    }
+int color_picker_hues[] = { 0, 5, 10, 15, 21, 26, 31, 36, 43, 53, 63, 73, 85, 95, 105, 115, 127, 132, 137, 142,
+    148, 153, 158, 163, 169, 172, 175, 178, 180, 185, 190, 195, 201, 206, 211, 217, 222, 230, 238, 245 };
+
+// returns 0 for RED0, 1 for RED5, 2 for RED10, 3 for RED15, 4 for ORNG21, ...
+int get_color_picker_keycode_index(uint16_t keycode) {
+    return keycode - RED0;
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool retval = true;
     switch (keycode) {
         case RED0:
-            set_hue_if_pressed(0, record);
-            retval = false;
-            break;
-
         case RED5:
-            set_hue_if_pressed(5, record);
-            retval = false;
-            break;
-
         case RED10:
-            set_hue_if_pressed(10, record);
-            retval = false;
-            break;
-
         case RED15:
-            set_hue_if_pressed(15, record);
-            retval = false;
-            break;
-
         case ORNG21:
-            set_hue_if_pressed(21, record);
-            retval = false;
-            break;
-
         case ORNG26:
-            set_hue_if_pressed(26, record);
-            retval = false;
-            break;
-
         case ORNG31:
-            set_hue_if_pressed(31, record);
-            retval = false;
-            break;
-
         case ORNG36:
-            set_hue_if_pressed(36, record);
-            retval = false;
-            break;
-
         case YLLW43:
-            set_hue_if_pressed(43, record);
-            retval = false;
-            break;
-
         case YLLW53:
-            set_hue_if_pressed(53, record);
-            retval = false;
-            break;
-
         case YLLW63:
-            set_hue_if_pressed(63, record);
-            retval = false;
-            break;
-
         case YLLW73:
-            set_hue_if_pressed(73, record);
-            retval = false;
-            break;
-
         case GRN85:
-            set_hue_if_pressed(85, record);
-            retval = false;
-            break;
-
         case GRN95:
-            set_hue_if_pressed(95, record);
-            retval = false;
-            break;
-
         case GRN105:
-            set_hue_if_pressed(105, record);
-            retval = false;
-            break;
-
         case GRN115:
-            set_hue_if_pressed(115, record);
-            retval = false;
-            break;
-
         case CYAN127:
-            set_hue_if_pressed(127, record);
-            retval = false;
-            break;
-
         case CYAN132:
-            set_hue_if_pressed(132, record);
-            retval = false;
-            break;
-
         case CYAN137:
-            set_hue_if_pressed(137, record);
-            retval = false;
-            break;
-
         case CYAN142:
-            set_hue_if_pressed(142, record);
-            retval = false;
-            break;
-
         case AZRE148:
-            set_hue_if_pressed(148, record);
-            retval = false;
-            break;
-
         case AZRE153:
-            set_hue_if_pressed(153, record);
-            retval = false;
-            break;
-
         case AZRE158:
-            set_hue_if_pressed(158, record);
-            retval = false;
-            break;
-
         case AZRE163:
-            set_hue_if_pressed(163, record);
-            retval = false;
-            break;
-
         case BLUE169:
-            set_hue_if_pressed(169, record);
-            retval = false;
-            break;
-
         case BLUE172:
-            set_hue_if_pressed(172, record);
-            retval = false;
-            break;
-
         case BLUE175:
-            set_hue_if_pressed(175, record);
-            retval = false;
-            break;
-
         case BLUE178:
-            set_hue_if_pressed(178, record);
-            retval = false;
-            break;
-
         case VILT180:
-            set_hue_if_pressed(180, record);
-            retval = false;
-            break;
-
         case VILT185:
-            set_hue_if_pressed(185, record);
-            retval = false;
-            break;
-
         case VILT190:
-            set_hue_if_pressed(190, record);
-            retval = false;
-            break;
-
         case VILT195:
-            set_hue_if_pressed(195, record);
-            retval = false;
-            break;
-
         case MGTA201:
-            set_hue_if_pressed(201, record);
-            retval = false;
-            break;
-
         case MGTA206:
-            set_hue_if_pressed(206, record);
-            retval = false;
-            break;
-
         case MGTA211:
-            set_hue_if_pressed(211, record);
-            retval = false;
-            break;
-
         case MGTA217:
-            set_hue_if_pressed(217, record);
-            retval = false;
-            break;
-
         case ROSE222:
-            set_hue_if_pressed(222, record);
-            retval = false;
-            break;
-
         case ROSE230:
-            set_hue_if_pressed(230, record);
-            retval = false;
-            break;
-
         case ROSE238:
-            set_hue_if_pressed(238, record);
-            retval = false;
-            break;
-
         case ROSE245:
-            set_hue_if_pressed(245, record);
+            if (record->event.pressed) {
+                rgb_matrix_mode(1);
+                rgb_matrix_sethsv(color_picker_hues[get_color_picker_keycode_index(keycode)], 255, 255);
+            }
             retval = false;
             break;
 
