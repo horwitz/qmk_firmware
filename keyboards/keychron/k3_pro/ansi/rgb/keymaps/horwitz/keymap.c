@@ -168,8 +168,53 @@ char layers_used_indices[NUM_LAYERS][NUM_KEYS];
 //      less-readable code)
 int layer_used_indices_size[NUM_LAYERS] = { -1, -1, -1, -1 };
 
+#define PALETTE_SIZE 40 // TODO derive via sizeof?
+
 int color_picker_hues[] = { 0, 5, 10, 15, 21, 26, 31, 36, 43, 53, 63, 73, 85, 95, 105, 115, 127, 132, 137, 142,
     148, 153, 158, 163, 169, 172, 175, 178, 180, 185, 190, 195, 201, 206, 211, 217, 222, 230, 238, 245 };
+
+int color_picker_palette_keycodes[] = {
+    17, // 1 (RED0 true red)
+    32, // Q (RED5)
+    47, // A (RED10)
+    61, // Z (RED15 red orange)
+    18, // 2 (ORNG21 true orange)
+    33, // W (ORNG26)
+    48, // S (ORNG31)
+    62, // X (ORNG36)
+    19, // 3 (YLLW43 true yellow)
+    34, // E (YLLW53)
+    49, // D (YLLW63)
+    63, // C (YLLW73)
+    20, // 4 (GRN85 true green)
+    35, // R (GRN95)
+    50, // F (GRN105)
+    64, // V (GRN115)
+    21, // 5 (CYAN127 true cyan)
+    36, // T (CYAN132)
+    51, // G (CYAN137)
+    65, // B (CYAN142)
+    22, // 6 (AZRE148 true azure)
+    37, // Y (AZRE153)
+    52, // H (AZRE158)
+    66, // N (AZRE163)
+    23, // 7 (BLUE169 true blue)
+    38, // U (BLUE172)
+    53, // J (BLUE175)
+    67, // M (BLUE178)
+    24, // 8 (VILT180 true violet)
+    39, // I (VILT185)
+    54, // K (VILT190)
+    68, // , (VILT195)
+    25, // 9 (MGTA201 true magenta)
+    40, // O (MGTA206)
+    55, // L (MGTA211)
+    69, // . (MGTA217)
+    26, // 0 (ROSE222 true rose)
+    41, // P (ROSE230)
+    56, // ; (ROSE238)
+    70  // / (ROSE245)
+};
 
 // returns 0 for RED0, 1 for RED5, 2 for RED10, 3 for RED15, 4 for ORNG21, ...
 int get_color_picker_keycode_index(uint16_t keycode) {
@@ -277,103 +322,11 @@ bool rgb_matrix_indicators_user(void) {
             rgb_matrix_set_color_all(0, 0, 0); // rest of keys black
             rgb_matrix_set_color(0, 255, 0, 0); // ESC red
 
-            // RGB values from original code
-//            rgb_matrix_set_color(17, 255, 0, 0); // RED0 true red, 1
-//            rgb_matrix_set_color(32, 255, 68, 0); // RED5, Q
-//            rgb_matrix_set_color(47, 255, 111, 0); // RED10, A
-//            rgb_matrix_set_color(61, 255, 179, 0); // RED15 red orange, Z
-//            rgb_matrix_set_color(18, 204, 204, 0); // ORNG21 true orange, 2
-//            rgb_matrix_set_color(33, 255, 205, 0); // ORNG26, W
-//            rgb_matrix_set_color(48, 255, 217, 0); // ORNG31, S
-//            rgb_matrix_set_color(62, 255, 230, 0); // ORNG36, X
-//            rgb_matrix_set_color(19, 255, 255, 0); // YLLW43 true yellow, 3
-//            rgb_matrix_set_color(34, 196, 255, 0); // YLLW53, E
-//            rgb_matrix_set_color(49, 154, 255, 0); // YLLW63, D
-//            rgb_matrix_set_color(63, 111, 255, 0); // YLLW73, C
-//            rgb_matrix_set_color(20, 0, 255, 0); // GRN85 true green, 4
-//            rgb_matrix_set_color(35, 0, 255, 50); // GRN95, R
-//            rgb_matrix_set_color(50, 0, 255, 75); // GRN105, F
-//            rgb_matrix_set_color(64, 0, 255, 120); // GRN115, V
-//            rgb_matrix_set_color(21, 0, 255, 255); // CYAN127 true cyan, 5
-//            rgb_matrix_set_color(36, 0, 213, 255); // CYAN132, T
-//            rgb_matrix_set_color(51, 0, 196, 255); // CYAN137, G
-//            rgb_matrix_set_color(65, 0, 154, 255); // CYAN142, B
-//            rgb_matrix_set_color(22, 0, 128, 255); // AZRE148 true azure, 6
-//            rgb_matrix_set_color(37, 0, 102, 255); // AZRE153, Y
-//            rgb_matrix_set_color(52, 0, 77, 255); // AZRE158, H
-//            rgb_matrix_set_color(66, 0, 60, 255); // AZRE163, N
-//            rgb_matrix_set_color(23, 0, 0, 255); // BLUE169 true blue, 7
-//            rgb_matrix_set_color(38, 43, 0, 255); // BLUE172, U
-//            rgb_matrix_set_color(53, 60, 0, 255); // BLUE175, J
-//            rgb_matrix_set_color(67, 77, 0, 255); // BLUE178, M
-//            rgb_matrix_set_color(24, 127, 0, 255); // VILT180 true violet, 8
-//            rgb_matrix_set_color(39, 171, 0, 255); // VILT185, I
-//            rgb_matrix_set_color(54, 200, 0, 255); // VILT190, K
-//            rgb_matrix_set_color(68, 215, 0, 255); // VILT195, <
-//            rgb_matrix_set_color(25, 255, 0, 255); // MGTA201 true magenta, 9
-//            rgb_matrix_set_color(40, 255, 0, 240); // MGTA206, O
-//            rgb_matrix_set_color(55, 255, 0, 220); // MGTA211, L
-//            rgb_matrix_set_color(69, 255, 0, 200); // MGTA217, >
-//            rgb_matrix_set_color(26, 255, 0, 127); // ROSE222 true rose, 0
-//            rgb_matrix_set_color(41, 255, 0, 111); // ROSE230, P
-//            rgb_matrix_set_color(56, 255, 0, 70); // ROSE238, :
-//            rgb_matrix_set_color(70, 255, 0, 26); // ROSE245, ?
-
-            /*
-             RGB values derived (in a separate program) via https://en.wikipedia.org/wiki/HSL_and_HSV#HSV_to_RGB:
-                 fun rgbOf(hue: Int) = (6.0 * hue / 256).let { hp: Double ->
-                     val x = 256 * (1 - Math.abs((hp % 2) - 1))
-                     when {
-                         hp >= 0.0 && hp < 1.0 -> listOf(255.0, x, 0.0)
-                         hp >= 1.0 && hp < 2.0 -> listOf(x, 255.0, 0.0)
-                         hp >= 2.0 && hp < 3.0 -> listOf(0.0, 255.0, x)
-                         hp >= 3.0 && hp < 4.0 -> listOf(0.0, x, 255.0)
-                         hp >= 4.0 && hp < 5.0 -> listOf(x, 0.0, 255.0)
-                         hp >= 5.0 && hp <= 6.0 -> listOf(255.0, 0.0, x)
-                         else -> error("error: hp = $hp")
-                     }
-                 }
-             */
-            rgb_matrix_set_color(17, 255, 0, 0); // RED0 true red, 1
-            rgb_matrix_set_color(32, 255, 30, 0); // RED5, Q
-            rgb_matrix_set_color(47, 255, 60, 0); // RED10, A
-            rgb_matrix_set_color(61, 255, 90, 0); // RED15 red orange, Z
-            rgb_matrix_set_color(18, 255, 126, 0); // ORNG21 true orange, 2
-            rgb_matrix_set_color(33, 255, 156, 0); // ORNG26, W
-            rgb_matrix_set_color(48, 255, 186, 0); // ORNG31, S
-            rgb_matrix_set_color(62, 255, 216, 0); // ORNG36, X
-            rgb_matrix_set_color(19, 254, 255, 0); // YLLW43 true yellow, 3
-            rgb_matrix_set_color(34, 194, 255, 0); // YLLW53, E
-            rgb_matrix_set_color(49, 134, 255, 0); // YLLW63, D
-            rgb_matrix_set_color(63, 74, 255, 0); // YLLW73, C
-            rgb_matrix_set_color(20, 2, 255, 0); // GRN85 true green, 4
-            rgb_matrix_set_color(35, 0, 255, 58); // GRN95, R
-            rgb_matrix_set_color(50, 0, 255, 118); // GRN105, F
-            rgb_matrix_set_color(64, 0, 255, 178); // GRN115, V
-            rgb_matrix_set_color(21, 0, 255, 250); // CYAN127 true cyan, 5
-            rgb_matrix_set_color(36, 0, 232, 255); // CYAN132, T
-            rgb_matrix_set_color(51, 0, 202, 255); // CYAN137, G
-            rgb_matrix_set_color(65, 0, 172, 255); // CYAN142, B
-            rgb_matrix_set_color(22, 0, 136, 255); // AZRE148 true azure, 6
-            rgb_matrix_set_color(37, 0, 106, 255); // AZRE153, Y
-            rgb_matrix_set_color(52, 0, 76, 255); // AZRE158, H
-            rgb_matrix_set_color(66, 0, 46, 255); // AZRE163, N
-            rgb_matrix_set_color(23, 0, 10, 255); // BLUE169 true blue, 7
-            rgb_matrix_set_color(38, 8, 0, 255); // BLUE172, U
-            rgb_matrix_set_color(53, 26, 0, 255); // BLUE175, J
-            rgb_matrix_set_color(67, 44, 0, 255); // BLUE178, M
-            rgb_matrix_set_color(24, 56, 0, 255); // VILT180 true violet, 8
-            rgb_matrix_set_color(39, 86, 0, 255); // VILT185, I
-            rgb_matrix_set_color(54, 116, 0, 255); // VILT190, K
-            rgb_matrix_set_color(68, 146, 0, 255); // VILT195, <
-            rgb_matrix_set_color(25, 182, 0, 255); // MGTA201 true magenta, 9
-            rgb_matrix_set_color(40, 212, 0, 255); // MGTA206, O
-            rgb_matrix_set_color(55, 242, 0, 255); // MGTA211, L
-            rgb_matrix_set_color(69, 255, 0, 234); // MGTA217, >
-            rgb_matrix_set_color(26, 255, 0, 204); // ROSE222 true rose, 0
-            rgb_matrix_set_color(41, 255, 0, 156); // ROSE230, P
-            rgb_matrix_set_color(56, 255, 0, 108); // ROSE238, :
-            rgb_matrix_set_color(70, 255, 0, 66); // ROSE245, ?
+            for (int i = 0; i < PALETTE_SIZE; ++i) {
+                HSV hsv = { color_picker_hues[i], 255, 255 };
+                RGB rgb = hsv_to_rgb(hsv);
+                rgb_matrix_set_color(color_picker_palette_keycodes[i], rgb.r, rgb.g, rgb.b);
+            }
 
             retval = false;
             break;
