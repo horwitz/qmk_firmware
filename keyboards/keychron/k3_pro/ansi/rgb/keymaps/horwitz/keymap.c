@@ -404,8 +404,23 @@ bool rgb_matrix_indicators_user(void) {
                 layer_used_indices_size[layer] = initialize_layer_used_indices(layer, layers_used_indices[layer]);
             }
 //            rgb_matrix_set_color_all(255, 255, 0); // uncomment to have transparent keys appear solid blue
+            RGB rgb = hsv_to_rgb(rgb_matrix_get_hsv());
+            // TODO what exactly _is_ the color returned by rgb_matrix_get_hsv()? is this some overall color (as opposed
+            //      to per-key ones)?
+            RGB complement_rgb;
+            /*
+             TODO? construct complement_rgb in a simpler / more-elegant fashion (e.g., a one-liner)--but
+            "RGB complement_rgb = { 255 - rgb.r, 255 - rgb.g, 255 - rgb.b };"
+            seems to swap r and g--i.e., make complement_rgb.r = 255 - rgb.g, c_r.g = 255-r.r, c_r.b = 255-r.b
+            (which, BTW, doesn't make sense w/RGB (a.k.a. cRGB) in quantum/color.h (if that's even the relevant def...))
+            (presumably "RGB complement_rgb = { 255 - rgb.g, 255 - rgb.r, 255 - rgb.b };" could solve this, but that
+            seems unnatural / potentially confusing.)
+            */
+            complement_rgb.r = 255 - rgb.r;
+            complement_rgb.g = 255 - rgb.g;
+            complement_rgb.b = 255 - rgb.b;
             for (int i = 0; i < layer_used_indices_size[layer]; ++i) {
-                rgb_matrix_set_color(layers_used_indices[layer][i], 255, 255, 0);
+                rgb_matrix_set_color(layers_used_indices[layer][i], complement_rgb.r, complement_rgb.g, complement_rgb.b);
             }
             retval = false;
             break;
