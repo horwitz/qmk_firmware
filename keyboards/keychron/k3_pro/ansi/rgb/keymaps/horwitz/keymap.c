@@ -14,13 +14,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * to debug, set DEBUG to 1 (as opposed to 0) and make sure (horwitz/)rules.mk contains "CONSOLE_ENABLE = yes"; then use
- * uprintf to print debug output
+/**
+ * Features:
+ * (1) Debugging
+ * (2) Highlighting used fn-layer keys
+ * (3) Color picking
+ *
+ * (1) SHORT NAME*: [DEBUG]
+ *     DETAILS: When enabled, outputs the result of `uprintf` statements--these can be seen in the QMK Toolbox console.
+ *     TO ACTIVATE: To debug, set `DEBUG` to 1 (as opposed to 0) and make sure that (horwitz/)rules.mk contains
+ *                 `CONSOLE_ENABLE = yes`; then use (e.g.) `uprintf` to print debug output.
+ *
+ * (2) SHORT NAME: [FN-HI]
+ *     DETAILS: When the `fn` key is pressed, the keys with new keycodes (i.e., not `KC_TRNS`) will light up in the
+ *              color complementary to the color** of layer 0***; the remaining keys will retain the lighting behavior
+ *              from the previous level.
+ *     TO ACTIVATE: The feature is always on.
+ *
+ * (3) SHORT NAME: [CPICK]
+ *     DETAILS: `fn+V` presents a 10x4 rainbow grid of keys (with the remaining keys dark)--pressing any one of these
+ *              keys sets the base layer (e.g., layer 0 when `fn` goes to layer 1) to a solid pattern of that color.
+ *     TO ACTIVATE: The feature is always on.
+ *     NOTE: The feature creates a fifth layer (layer 4) for the rainbow grid (meant only to be accessed for the
+ *           purposes mentioned above in DETAILS.
+ *
+ * * notation just for documentation (when I comment with the SHORT NAME is found, the code below--continuing until the
+ *   next blank line--is park of the feature with that SHORT NAME (additionally: some single lines have a comment with
+ *   the short name at the end of the line, meaning that that one line should be taken into account, rather than
+ *   continuing on to the next blank line)... also it is (or at least should be) the case that _all_ of the code for the
+ *   feature is commented in that fashion
+ * ** main(?)
+ * *** or is it the layer from which one came (e.g., starting at a base layer of 2, will these be complementary to layer
+ *     2's color**)?
  */
+
+// [DEBUG]
 #define DEBUG 0
 
 #include QMK_KEYBOARD_H
+// [DEBUG]
 #if DEBUG
     #include "print.h"
 #endif
@@ -31,11 +63,13 @@ enum layers{
   MAC_FN,
   WIN_BASE,
   WIN_FN,
-  CLR_PKR
+  CLR_PKR // [CPICK]
 };
+// [FN-HI]
 #define NUM_LAYERS DYNAMIC_KEYMAP_LAYER_COUNT // TODO? derive from elsewhere? inline?
 #define NUM_KEYS 84 // TODO? derive from... somewhere
 
+// [CPICK]
 enum ctrl_keycodes {
     RED0 = NEW_SAFE_RANGE, // if instead set to SAFE_RANGE, collisions occur (e.g., KC_LOPTN == RED0, ...)
     RED5,
@@ -79,6 +113,7 @@ enum ctrl_keycodes {
     ROSE245
 };
 
+// [DEBUG]
 #if DEBUG
     void keyboard_post_init_user(void) {
         // Customise these values to desired behaviour
@@ -103,7 +138,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TRNS,  BT_HST1,  BT_HST2,  BT_HST3,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      KC_TRNS,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,            KC_TRNS,
-     KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,OSL(CLR_PKR),BAT_LVL, NK_TOGG,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,
+     KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,OSL(CLR_PKR),BAT_LVL, NK_TOGG,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS, // [CPICK] ("OSL(CLR_PKR)")
      KC_TRNS,  KC_TRNS,  KC_TRNS,                                KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [WIN_BASE] = LAYOUT_ansi_84(
@@ -119,9 +154,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TRNS,  BT_HST1,  BT_HST2,  BT_HST3,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      KC_TRNS,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,            KC_TRNS,
-     KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,OSL(CLR_PKR),BAT_LVL, NK_TOGG,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,
+     KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,OSL(CLR_PKR),BAT_LVL, NK_TOGG,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS, // [CPICK] ("OSL(CLR_PKR)")
      KC_TRNS,  KC_TRNS,  KC_TRNS,                                KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
+// [CPICK]
 [CLR_PKR] = LAYOUT_ansi_84(
      TG(MAC_BASE),_______,_______, _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
      _______,  RED0,     ORNG21,   YLLW43,   GRN85,    CYAN127,  AZRE148,  BLUE169,  VILT180,  MGTA201,  ROSE222,  _______,  _______,  _______,            _______,
@@ -131,6 +167,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______)
 };
 
+// [FN-HI]
 /*
  * sets the values in [layer_used_indices] to the indices (in increasing order; a subset of 0-83) that are used in the
  * given [layer] ("used" = not KC_TRNS) and returns how many values were set. (e.g., if keys at index 0, 5, 83 are the
@@ -163,16 +200,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     return lui_i;
 }
 
+// [FN-HI]
 char layers_used_indices[NUM_LAYERS][NUM_KEYS];
 // TODO handle this differently(?) (e.g., just initialize all 4 immediately, rather than lazily (and with (presumably)
 //      less-readable code)
 int layer_used_indices_size[NUM_LAYERS] = { -1, -1, -1, -1 };
 
+// [CPICK]
 #define PALETTE_SIZE 40 // TODO derive via sizeof?
 
+// [CPICK]
 int color_picker_hues[] = { 0, 5, 10, 15, 21, 26, 31, 36, 43, 53, 63, 73, 85, 95, 105, 115, 127, 132, 137, 142,
     148, 153, 158, 163, 169, 172, 175, 178, 180, 185, 190, 195, 201, 206, 211, 217, 222, 230, 238, 245 };
 
+// [CPICK]
 int color_picker_palette_keycodes[] = {
     17, // 1 (RED0 true red)
     32, // Q (RED5)
@@ -216,11 +257,13 @@ int color_picker_palette_keycodes[] = {
     70  // / (ROSE245)
 };
 
+// [CPICK]
 // returns 0 for RED0, 1 for RED5, 2 for RED10, 3 for RED15, 4 for ORNG21, ...
 int get_color_picker_keycode_index(uint16_t keycode) {
     return keycode - RED0;
 }
 
+// [CPICK]
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool retval = true;
     switch (keycode) {
@@ -288,6 +331,7 @@ bool rgb_matrix_indicators_user(void) {
             retval = true;
             break;
 
+        // [FN-HI]
         // when fn is held down, set lights yellow on keys whose behavior changed from base layer; set others to blue
         // inspired by https://www.reddit.com/r/olkb/comments/kpro3p/comment/h3nb56h
         case MAC_FN:
@@ -318,6 +362,7 @@ bool rgb_matrix_indicators_user(void) {
             retval = false;
             break;
 
+        // [CPICK]
         case CLR_PKR:
             rgb_matrix_set_color_all(0, 0, 0); // rest of keys black
             rgb_matrix_set_color(0, 255, 0, 0); // ESC red
