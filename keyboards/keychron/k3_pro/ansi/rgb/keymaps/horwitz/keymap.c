@@ -37,6 +37,9 @@
  *     TO ACTIVATE: The feature is always on.
  *     NOTE: The feature creates a fifth layer (layer 4) for the rainbow grid (meant only to be accessed for the
  *           purposes mentioned above in DETAILS.
+ * (4) SHORT NAME: [SUS-RGB]
+ *     DETAILS: Turns off lighting when the laptop sleeps (and similar(?) behavior).
+ *     TO ACTIVATE: The feature is always on.
  *
  * * notation just for documentation (when I comment with the SHORT NAME is found, the code below--continuing until the
  *   next blank line--is park of the feature with that SHORT NAME (additionally: some single lines have a comment with
@@ -123,6 +126,16 @@ enum ctrl_keycodes {
     //    debug_mouse=true;
     }
 #endif
+
+// [SUS-RGB]
+void suspend_power_down_user(void) {
+    rgb_matrix_set_suspend_state(true);
+    // suspend_power_down_keymap(); // should this be called?
+}
+void suspend_wakeup_init_user(void) {
+    rgb_matrix_set_suspend_state(false);
+    // suspend_wakeup_init_keymap(); // should this be called?
+}
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [MAC_BASE] = LAYOUT_ansi_84(
