@@ -202,10 +202,12 @@ int layer_used_indices_size[NUM_LAYERS];
 
 // [CPICK]
 int color_picker_hues[PALETTE_SIZE];
+RGB color_picker_rgbs[PALETTE_SIZE];
 
 void matrix_init_user(void) {
     // [CPICK]
     /*
+      hues:
       0,   5,  11,  16,  21,  27,  32,  37,  43,  48,  53,  59,
      64,  69,  75,  80,  85,  91,  96, 101, 107, 112, 117, 123,
     128, 133, 139, 144, 149, 155, 160, 165, 171, 176, 181, 187,
@@ -213,7 +215,10 @@ void matrix_init_user(void) {
     */
     for (int i = 0; i < PALETTE_SIZE; ++i) {
         color_picker_hues[i] = round(i * 256.0 / 48);
+        HSV hsv = { color_picker_hues[i], 255, 255 };
+        color_picker_rgbs[i] = hsv_to_rgb(hsv);
     }
+
 
     // [FN-HI]
     // TODO? only do for layers MAC_FN and WIN_FN (rather than all layers), since FN-HI only uses those layers (see
@@ -398,9 +403,9 @@ bool rgb_matrix_indicators_user(void) {
             rgb_matrix_set_color(0, 255, 0, 0); // ESC red // TODO? different color here
             // TODO? allow picking white (HSV = (0, 0, 255), RGB = (255, 255, 255))
 
+            // [CPICK]
             for (int i = 0; i < PALETTE_SIZE; ++i) {
-                HSV hsv = { color_picker_hues[i], 255, 255 };
-                RGB rgb = hsv_to_rgb(hsv);
+                RGB rgb = color_picker_rgbs[i];
                 rgb_matrix_set_color(color_picker_palette_keycodes[i], rgb.r, rgb.g, rgb.b);
             }
 
