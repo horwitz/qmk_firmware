@@ -219,10 +219,9 @@ void matrix_init_user(void) {
         color_picker_rgbs[i] = hsv_to_rgb(hsv);
     }
 
-
     // [FN-HI]
-    // TODO? only do for layers MAC_FN and WIN_FN (rather than all layers), since FN-HI only uses those layers (see
-    //       rgb_matrix_indicators_user)
+    // TODO? only do for layer = MAC_FN and layer = WIN_FN (rather than all layers), since FN-HI only uses those layers
+    //       (see rgb_matrix_indicators_user)
     for (int layer = 0; layer < NUM_LAYERS; ++layer) {
         layer_used_indices_size[layer] = initialize_layer_used_indices(layer, layers_used_indices[layer]);
     }
@@ -292,6 +291,9 @@ int get_color_picker_keycode_index(uint16_t keycode) {
 // [CPICK]
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool retval = true;
+     // TODO? convert switch to "if (keycode >= COLOR00 && keycode <=COLOR47)"--or even
+     //       "if (is_color_picker_color_keycode(keycode))", where "is_color_picker_color_keycode(uint16_t keycode)" is
+     //       "return keycode >= COLOR00 && keycode <=COLOR47;"
     switch (keycode) {
         case COLOR00:
         case COLOR01:
