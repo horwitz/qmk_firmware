@@ -32,11 +32,16 @@
  *     TO ACTIVATE: The feature is always on.
  *
  * (3) SHORT NAME: [CPICK]
- *     DETAILS: `fn+V` presents a 10x4 rainbow grid of keys (with the remaining keys dark)--pressing any one of these
- *              keys sets the base layer (e.g., layer 0 when `fn` goes to layer 1) to a solid pattern of that color.
+ *     DETAILS: `fn+V` presents a 12x4 rainbow grid of keys (with the remaining keys dark)--pressing any one of these
+ *              keys sets the base layer (e.g., layer 0 when `fn` goes to layer 1) to a solid pattern of that color. The
+ *              top row (of four rows) are primary, secondary, and tertiary colors--in standard order: red (1),
+ *              orange (3), yellow (2), chartreuse (3), green (1), spring green (3), cyan (2), azure (3), blue (1),
+ *              violet (3), magenta (2), rose (3) (colors, going down then across, increase in hue by approximately 1/48
+ *              (in a range of [0,1)) (w/saturation and value both of 1 (in [0,1])).
  *     TO ACTIVATE: The feature is always on.
  *     NOTE: The feature creates a fifth layer (layer 4) for the rainbow grid (meant only to be accessed for the
- *           purposes mentioned above in DETAILS.
+ *           purposes mentioned above in DETAILS. Actual hue values are encoded as integers in [0,256) (scaled from
+ *           [0,1)).
  * (4) SHORT NAME: [SUS-RGB]
  *     DETAILS: Turns off lighting when the laptop sleeps (and similar(?) behavior).
  *     TO ACTIVATE: The feature is always on.
@@ -74,46 +79,20 @@ enum layers{
 
 // [CPICK]
 enum ctrl_keycodes {
-    RED0 = NEW_SAFE_RANGE, // if instead set to SAFE_RANGE, collisions occur (e.g., KC_LOPTN == RED0, ...)
-    RED5,
-    RED10,
-    RED15,
-    ORNG21,
-    ORNG26,
-    ORNG31,
-    ORNG36,
-    YLLW43,
-    YLLW53,
-    YLLW63,
-    YLLW73,
-    GRN85,
-    GRN95,
-    GRN105,
-    GRN115,
-    CYAN127,
-    CYAN132,
-    CYAN137,
-    CYAN142,
-    AZRE148,
-    AZRE153,
-    AZRE158,
-    AZRE163,
-    BLUE169,
-    BLUE172,
-    BLUE175,
-    BLUE178,
-    VILT180,
-    VILT185,
-    VILT190,
-    VILT195,
-    MGTA201,
-    MGTA206,
-    MGTA211,
-    MGTA217,
-    ROSE222,
-    ROSE230,
-    ROSE238,
-    ROSE245
+    // if COLOR00 were set to SAFE_RANGE (instead of NEW_SAFE_RANGE), collisions would occur (e.g.,
+    // KC_LOPTN == COLOR00, ...)
+    COLOR00 = NEW_SAFE_RANGE, COLOR01, COLOR02, COLOR03,
+    COLOR04, COLOR05, COLOR06, COLOR07,
+    COLOR08, COLOR09, COLOR10, COLOR11,
+    COLOR12, COLOR13, COLOR14, COLOR15,
+    COLOR16, COLOR17, COLOR18, COLOR19,
+    COLOR20, COLOR21, COLOR22, COLOR23,
+    COLOR24, COLOR25, COLOR26, COLOR27,
+    COLOR28, COLOR29, COLOR30, COLOR31,
+    COLOR32, COLOR33, COLOR34, COLOR35,
+    COLOR36, COLOR37, COLOR38, COLOR39,
+    COLOR40, COLOR41, COLOR42, COLOR43,
+    COLOR44, COLOR45, COLOR46, COLOR47
 };
 
 // [DEBUG]
@@ -173,10 +152,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // [CPICK]
 [CLR_PKR] = LAYOUT_ansi_84(
      TG(MAC_BASE),_______,_______, _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
-     _______,  RED0,     ORNG21,   YLLW43,   GRN85,    CYAN127,  AZRE148,  BLUE169,  VILT180,  MGTA201,  ROSE222,  _______,  _______,  _______,            _______,
-     _______,  RED5,     ORNG26,   YLLW53,   GRN95,    CYAN132,  AZRE153,  BLUE172,  VILT185,  MGTA206,  ROSE230,  _______,  _______,  _______,            _______,
-     _______,  RED10,    ORNG31,   YLLW63,   GRN105,   CYAN137,  AZRE158,  BLUE175,  VILT190,  MGTA211,  ROSE238,  _______,            _______,            _______,
-     _______,            RED15,    ORNG36,   YLLW73,   GRN115,   CYAN142,  AZRE163,  BLUE178,  VILT195,  MGTA217,  ROSE245,            _______,  _______,  _______,
+     COLOR00,  COLOR04,  COLOR08,  COLOR12,  COLOR16,  COLOR20,  COLOR24,  COLOR28,  COLOR32,  COLOR36,  COLOR40,  COLOR44,  _______,  _______,            _______,
+     COLOR01,  COLOR05,  COLOR09,  COLOR13,  COLOR17,  COLOR21,  COLOR25,  COLOR29,  COLOR33,  COLOR37,  COLOR41,  COLOR45,  _______,  _______,            _______,
+     COLOR02,  COLOR06,  COLOR10,  COLOR14,  COLOR18,  COLOR22,  COLOR26,  COLOR30,  COLOR34,  COLOR38,  COLOR42,  COLOR46,            _______,            _______,
+     COLOR02,            COLOR06,  COLOR10,  COLOR14,  COLOR18,  COLOR22,  COLOR26,  COLOR30,  COLOR34,  COLOR38,  COLOR42,            COLOR46,  _______,  _______,
      _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______)
 };
 
@@ -216,110 +195,131 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // [FN-HI]
 char layers_used_indices[NUM_LAYERS][NUM_KEYS];
 // TODO handle this differently(?) (e.g., just initialize all 4 immediately, rather than lazily (and with (presumably)
-//      less-readable code)
+//      less-readable code))
 int layer_used_indices_size[NUM_LAYERS] = { -1, -1, -1, -1 };
 
 // [CPICK]
-#define PALETTE_SIZE 40 // TODO derive via sizeof?
+#define PALETTE_SIZE 48 // TODO derive via sizeof color_picker_hues and/or color_picker_palette_keycodes?
 
 // [CPICK]
-int color_picker_hues[] = { 0, 5, 10, 15, 21, 26, 31, 36, 43, 53, 63, 73, 85, 95, 105, 115, 127, 132, 137, 142,
-    148, 153, 158, 163, 169, 172, 175, 178, 180, 185, 190, 195, 201, 206, 211, 217, 222, 230, 238, 245 };
-
-// [CPICK]
-int color_picker_palette_keycodes[] = {
-    17, // 1 (RED0 true red)
-    32, // Q (RED5)
-    47, // A (RED10)
-    61, // Z (RED15 red orange)
-    18, // 2 (ORNG21 true orange)
-    33, // W (ORNG26)
-    48, // S (ORNG31)
-    62, // X (ORNG36)
-    19, // 3 (YLLW43 true yellow)
-    34, // E (YLLW53)
-    49, // D (YLLW63)
-    63, // C (YLLW73)
-    20, // 4 (GRN85 true green)
-    35, // R (GRN95)
-    50, // F (GRN105)
-    64, // V (GRN115)
-    21, // 5 (CYAN127 true cyan)
-    36, // T (CYAN132)
-    51, // G (CYAN137)
-    65, // B (CYAN142)
-    22, // 6 (AZRE148 true azure)
-    37, // Y (AZRE153)
-    52, // H (AZRE158)
-    66, // N (AZRE163)
-    23, // 7 (BLUE169 true blue)
-    38, // U (BLUE172)
-    53, // J (BLUE175)
-    67, // M (BLUE178)
-    24, // 8 (VILT180 true violet)
-    39, // I (VILT185)
-    54, // K (VILT190)
-    68, // , (VILT195)
-    25, // 9 (MGTA201 true magenta)
-    40, // O (MGTA206)
-    55, // L (MGTA211)
-    69, // . (MGTA217)
-    26, // 0 (ROSE222 true rose)
-    41, // P (ROSE230)
-    56, // ; (ROSE238)
-    70  // / (ROSE245)
+// TODO generate (i.e., (0 until 48).map { (i * 256.0/48).roundToInt() })
+int color_picker_hues[] = {
+      0,   5,  11,  16,  21,  27,  32,  37,  43,  48,  53,  59,
+     64,  69,  75,  80,  85,  91,  96, 101, 107, 112, 117, 123,
+    128, 133, 139, 144, 149, 155, 160, 165, 171, 176, 181, 187,
+    192, 197, 203, 208, 213, 219, 224, 229, 235, 240, 245, 251
 };
 
 // [CPICK]
-// returns 0 for RED0, 1 for RED5, 2 for RED10, 3 for RED15, 4 for ORNG21, ...
+int color_picker_palette_keycodes[] = {
+    16, // `    (COLOR00: (1) red)
+    31, // TAB  (COLOR01: (5) scarlet)
+    46, // CAPS (COLOR02: (4) vermilion)
+    60, // LSFT (COLOR03: (5) persimmon)
+    17, // 1    (COLOR04: (3) orange)
+    32, // Q    (COLOR05: (5) orange peel)
+    47, // A    (COLOR06: (4) amber)
+    61, // Z    (COLOR07: (5) golden yellow)
+    18, // 2    (COLOR08: (2) yellow)
+    33, // W    (COLOR09: (5) lemon)
+    48, // S    (COLOR10: (4) lime)
+    62, // X    (COLOR11: (5) spring bud)
+    19, // 3    (COLOR12: (3) chartreuse)
+    34, // E    (COLOR13: (5) bright green)
+    49, // D    (COLOR14: (4) harlequin)
+    63, // C    (COLOR15: (5) neon green)
+    20, // 4    (COLOR16: (1) green)
+    35, // R    (COLOR17: (5) jade)
+    50, // F    (COLOR18: (4) erin)
+    64, // V    (COLOR19: (5) emerald)
+    21, // 5    (COLOR20: (3) spring green)
+    36, // T    (COLOR21: (5) mint)
+    51, // G    (COLOR22: (4) aquamarine)
+    65, // B    (COLOR23: (5) turquoise)
+    22, // 6    (COLOR24: (2) cyan)
+    37, // Y    (COLOR25: (5) sky blue)
+    52, // H    (COLOR26: (4) capri)
+    66, // N    (COLOR27: (5) cornflower)
+    23, // 7    (COLOR28: (3) azure)
+    38, // U    (COLOR29: (5) cobalt)
+    53, // J    (COLOR30: (4) cerulean)
+    67, // M    (COLOR31: (5) sapphire)
+    24, // 8    (COLOR32: (1) blue)
+    39, // I    (COLOR33: (5) iris)
+    54, // K    (COLOR34: (4) indigo)
+    68, // ,    (COLOR35: (5) veronica)
+    25, // 9    (COLOR36: (3) violet)
+    40, // O    (COLOR37: (5) amethyst)
+    55, // L    (COLOR38: (4) purple)
+    69, // .    (COLOR39: (5) phlox)
+    26, // 0    (COLOR40: (2) magenta)
+    41, // P    (COLOR41: (5) fuchsia)
+    56, // ;    (COLOR42: (4) cerise)
+    70, // /    (COLOR43: (5) deep pink)
+    27, // -    (COLOR44: (3) rose)
+    42, // []   (COLOR45: (5) raspberry)
+    57, // '    (COLOR46: (4) crimson)
+    71  // RSFT (COLOR47: (5) amaranth)
+};
+
+// [CPICK]
+// returns 0 for COLOR00, 1 for COLOR01, ...
 int get_color_picker_keycode_index(uint16_t keycode) {
-    return keycode - RED0;
+    return keycode - COLOR00;
 }
 
 // [CPICK]
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool retval = true;
     switch (keycode) {
-        case RED0:
-        case RED5:
-        case RED10:
-        case RED15:
-        case ORNG21:
-        case ORNG26:
-        case ORNG31:
-        case ORNG36:
-        case YLLW43:
-        case YLLW53:
-        case YLLW63:
-        case YLLW73:
-        case GRN85:
-        case GRN95:
-        case GRN105:
-        case GRN115:
-        case CYAN127:
-        case CYAN132:
-        case CYAN137:
-        case CYAN142:
-        case AZRE148:
-        case AZRE153:
-        case AZRE158:
-        case AZRE163:
-        case BLUE169:
-        case BLUE172:
-        case BLUE175:
-        case BLUE178:
-        case VILT180:
-        case VILT185:
-        case VILT190:
-        case VILT195:
-        case MGTA201:
-        case MGTA206:
-        case MGTA211:
-        case MGTA217:
-        case ROSE222:
-        case ROSE230:
-        case ROSE238:
-        case ROSE245:
+        case COLOR00:
+        case COLOR01:
+        case COLOR02:
+        case COLOR03:
+        case COLOR04:
+        case COLOR05:
+        case COLOR06:
+        case COLOR07:
+        case COLOR08:
+        case COLOR09:
+        case COLOR10:
+        case COLOR11:
+        case COLOR12:
+        case COLOR13:
+        case COLOR14:
+        case COLOR15:
+        case COLOR16:
+        case COLOR17:
+        case COLOR18:
+        case COLOR19:
+        case COLOR20:
+        case COLOR21:
+        case COLOR22:
+        case COLOR23:
+        case COLOR24:
+        case COLOR25:
+        case COLOR26:
+        case COLOR27:
+        case COLOR28:
+        case COLOR29:
+        case COLOR30:
+        case COLOR31:
+        case COLOR32:
+        case COLOR33:
+        case COLOR34:
+        case COLOR35:
+        case COLOR36:
+        case COLOR37:
+        case COLOR38:
+        case COLOR39:
+        case COLOR40:
+        case COLOR41:
+        case COLOR42:
+        case COLOR43:
+        case COLOR44:
+        case COLOR45:
+        case COLOR46:
+        case COLOR47:
             if (record->event.pressed) {
                 rgb_matrix_mode(1);
                 rgb_matrix_sethsv(color_picker_hues[get_color_picker_keycode_index(keycode)], 255, 255);
@@ -377,8 +377,9 @@ bool rgb_matrix_indicators_user(void) {
 
         // [CPICK]
         case CLR_PKR:
-            rgb_matrix_set_color_all(0, 0, 0); // rest of keys black
-            rgb_matrix_set_color(0, 255, 0, 0); // ESC red
+            rgb_matrix_set_color_all(0, 0, 0); // set keys not changed below to black
+            rgb_matrix_set_color(0, 255, 0, 0); // ESC red // TODO? different color here
+            // TODO? allow picking white (HSV = (0, 0, 255), RGB = (255, 255, 255))
 
             for (int i = 0; i < PALETTE_SIZE; ++i) {
                 HSV hsv = { color_picker_hues[i], 255, 255 };
