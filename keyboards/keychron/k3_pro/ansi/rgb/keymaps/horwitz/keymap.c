@@ -60,6 +60,7 @@
 #define DEBUG 0
 
 #include QMK_KEYBOARD_H
+#include <math.h> // for round() // [CPICK]
 // [DEBUG]
 #if DEBUG
     #include "print.h"
@@ -202,16 +203,26 @@ int layer_used_indices_size[NUM_LAYERS] = { -1, -1, -1, -1 };
 #define PALETTE_SIZE 48 // TODO derive via sizeof color_picker_hues and/or color_picker_palette_keycodes?
 
 // [CPICK]
-// TODO generate (i.e., (0 until 48).map { (i * 256.0/48).roundToInt() })
-int color_picker_hues[] = {
-      0,   5,  11,  16,  21,  27,  32,  37,  43,  48,  53,  59,
-     64,  69,  75,  80,  85,  91,  96, 101, 107, 112, 117, 123,
-    128, 133, 139, 144, 149, 155, 160, 165, 171, 176, 181, 187,
-    192, 197, 203, 208, 213, 219, 224, 229, 235, 240, 245, 251
-};
+int color_picker_hues[PALETTE_SIZE];
+
+void matrix_init_user(void) {
+// [CPICK]
+/*
+  0,   5,  11,  16,  21,  27,  32,  37,  43,  48,  53,  59,
+ 64,  69,  75,  80,  85,  91,  96, 101, 107, 112, 117, 123,
+128, 133, 139, 144, 149, 155, 160, 165, 171, 176, 181, 187,
+192, 197, 203, 208, 213, 219, 224, 229, 235, 240, 245, 251
+*/
+    for (int i = 0; i < PALETTE_SIZE; ++i) {
+        color_picker_hues[i] = round(i * 256.0/48);
+    }
+}
 
 // [CPICK]
-int color_picker_palette_keycodes[] = {
+// TODO? check that the rvalue for the color_picker_palette_keycodes assignment actually has PALETTE_SIZE elements (not
+//       fewer--too many would lead to a compilation failure, but too few would leave (presumably unwanted) 0s at the
+//       end)
+int color_picker_palette_keycodes[PALETTE_SIZE] = {
     16, // `    (COLOR00: (1) red)
     31, // TAB  (COLOR01: (5) scarlet)
     46, // CAPS (COLOR02: (4) vermilion)
