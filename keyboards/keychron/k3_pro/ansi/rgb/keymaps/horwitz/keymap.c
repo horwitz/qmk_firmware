@@ -67,12 +67,12 @@
 #endif
 
 // clang-format off
-enum layers{
-  MAC_BASE,
-  MAC_FN,
-  WIN_BASE,
-  WIN_FN,
-  CLR_PKR // [CPICK]
+enum layers {
+    MAC_BASE,
+    MAC_FN,
+    WIN_BASE,
+    WIN_FN,
+    CLR_PKR // [CPICK]
 };
 // [FN-HI]
 #define NUM_LAYERS DYNAMIC_KEYMAP_LAYER_COUNT // TODO? derive from elsewhere? inline?
@@ -83,27 +83,27 @@ enum ctrl_keycodes {
     // if COLOR00 were set to SAFE_RANGE (instead of NEW_SAFE_RANGE), collisions would occur (e.g.,
     // KC_LOPTN == COLOR00, ...)
     COLOR00 = NEW_SAFE_RANGE, COLOR01, COLOR02, COLOR03,
-    COLOR04, COLOR05, COLOR06, COLOR07,
-    COLOR08, COLOR09, COLOR10, COLOR11,
-    COLOR12, COLOR13, COLOR14, COLOR15,
-    COLOR16, COLOR17, COLOR18, COLOR19,
-    COLOR20, COLOR21, COLOR22, COLOR23,
-    COLOR24, COLOR25, COLOR26, COLOR27,
-    COLOR28, COLOR29, COLOR30, COLOR31,
-    COLOR32, COLOR33, COLOR34, COLOR35,
-    COLOR36, COLOR37, COLOR38, COLOR39,
-    COLOR40, COLOR41, COLOR42, COLOR43,
-    COLOR44, COLOR45, COLOR46, COLOR47
+        COLOR04, COLOR05, COLOR06, COLOR07,
+        COLOR08, COLOR09, COLOR10, COLOR11,
+        COLOR12, COLOR13, COLOR14, COLOR15,
+        COLOR16, COLOR17, COLOR18, COLOR19,
+        COLOR20, COLOR21, COLOR22, COLOR23,
+        COLOR24, COLOR25, COLOR26, COLOR27,
+        COLOR28, COLOR29, COLOR30, COLOR31,
+        COLOR32, COLOR33, COLOR34, COLOR35,
+        COLOR36, COLOR37, COLOR38, COLOR39,
+        COLOR40, COLOR41, COLOR42, COLOR43,
+        COLOR44, COLOR45, COLOR46, COLOR47
 };
 
 // [DEBUG]
 #if DEBUG
     void keyboard_post_init_user(void) {
         // Customise these values to desired behaviour
-        debug_enable=true;
-        debug_matrix=true;
-        debug_keyboard=true;
-    //    debug_mouse=true;
+        debug_enable = true;
+        debug_matrix = true;
+        debug_keyboard = true;
+    //    debug_mouse = true;
     }
 #endif
 
@@ -172,7 +172,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * non-KC_NO keys are indexed 0-83 (and there are 96-84=12 instances of KC_NO (per layer))... see LAYOUT_ansi_84's
  * definition in obj_keychron_k3_pro_ansi_rgb/src/default_keyboard.h
  */
- int initialize_layer_used_indices(int layer, char* layer_used_indices) {
+int initialize_layer_used_indices(int layer, char* layer_used_indices) {
     int lui_i = 0;
     int offset = 0;
     for (int i = 0; i < MATRIX_ROWS * MATRIX_COLS; ++i) {
@@ -212,7 +212,7 @@ void matrix_init_user(void) {
     192, 197, 203, 208, 213, 219, 224, 229, 235, 240, 245, 251
     */
     for (int i = 0; i < PALETTE_SIZE; ++i) {
-        color_picker_hues[i] = round(i * 256.0/48);
+        color_picker_hues[i] = round(i * 256.0 / 48);
     }
 
     // [FN-HI]
@@ -336,7 +336,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case COLOR45:
         case COLOR46:
         case COLOR47:
-            if (record->event.pressed) {
+            if (record -> event.pressed) {
                 rgb_matrix_mode(1);
                 rgb_matrix_sethsv(color_picker_hues[get_color_picker_keycode_index(keycode)], 255, 255);
             }
