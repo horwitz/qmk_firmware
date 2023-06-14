@@ -382,7 +382,12 @@ bool rgb_matrix_indicators_user(void) {
             complement_rgb.g = 255 - rgb.g;
             complement_rgb.b = 255 - rgb.b;
             for (int i = 0; i < layer_used_indices_size[layer]; ++i) {
-                rgb_matrix_set_color(layers_used_indices[layer][i], complement_rgb.r, complement_rgb.g, complement_rgb.b);
+                rgb_matrix_set_color(
+                    layers_used_indices[layer][i],
+                    complement_rgb.r,
+                    complement_rgb.g,
+                    complement_rgb.b
+                );
             }
             retval = false;
             break;
