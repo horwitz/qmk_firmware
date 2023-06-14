@@ -74,8 +74,6 @@ enum layers {
     WIN_FN,
     CLR_PKR // [CPICK]
 };
-// [FN-HI]
-#define NUM_KEYS 84 // TODO? derive from... somewhere (RGB_MATRIX_LED_COUNT? LED count not exactly the same a # keys...)
 
 // [CPICK]
 enum ctrl_keycodes {
@@ -193,7 +191,10 @@ int initialize_layer_used_indices(int layer, char* layer_used_indices) {
 }
 
 // [FN-HI]
-char layers_used_indices[DYNAMIC_KEYMAP_LAYER_COUNT][NUM_KEYS];
+// for any given layer, layers_used_indices[layer] should not exceed RGB_MATRIX_LED_COUNT in size, since each index
+// found in the array should represent a key with a distinct light (see also: doc for initialize_layer_used_indices)
+// TODO? validate that RGB_MATRIX_LED_COUNT is 84
+char layers_used_indices[DYNAMIC_KEYMAP_LAYER_COUNT][RGB_MATRIX_LED_COUNT];
 int layer_used_indices_size[DYNAMIC_KEYMAP_LAYER_COUNT];
 
 // [CPICK]
