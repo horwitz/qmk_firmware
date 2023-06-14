@@ -359,12 +359,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 bool rgb_matrix_indicators_user(void) {
     uint8_t layer = biton32(layer_state);
-    bool retval = true;
 
     switch (layer) {
         case MAC_BASE:
         case WIN_BASE:
-            retval = true;
             break;
 
         // [FN-HI]
@@ -396,7 +394,6 @@ bool rgb_matrix_indicators_user(void) {
                     complement_rgb.b
                 );
             }
-            retval = false;
             break;
 
         // [CPICK]
@@ -411,9 +408,8 @@ bool rgb_matrix_indicators_user(void) {
                 rgb_matrix_set_color(color_picker_palette_keycodes[i], rgb.r, rgb.g, rgb.b);
             }
 
-            retval = false;
             break;
     }
 
-    return retval;
+    return true; // TODO should this always be true?
 }
