@@ -76,7 +76,7 @@ enum layers {
 };
 // [FN-HI]
 #define NUM_LAYERS DYNAMIC_KEYMAP_LAYER_COUNT // TODO? derive from elsewhere? inline?
-#define NUM_KEYS 84 // TODO? derive from... somewhere
+#define NUM_KEYS 84 // TODO? derive from... somewhere (RGB_MATRIX_LED_COUNT? LED count not exactly the same a # keys...)
 
 // [CPICK]
 enum ctrl_keycodes {
