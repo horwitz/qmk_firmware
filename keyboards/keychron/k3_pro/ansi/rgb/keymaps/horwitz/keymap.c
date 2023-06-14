@@ -195,9 +195,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // [FN-HI]
 char layers_used_indices[NUM_LAYERS][NUM_KEYS];
-// TODO handle this differently(?) (e.g., just initialize all 4 immediately, rather than lazily (and with (presumably)
-//      less-readable code))
-int layer_used_indices_size[NUM_LAYERS] = { -1, -1, -1, -1 };
+int layer_used_indices_size[NUM_LAYERS];
 
 // [CPICK]
 #define PALETTE_SIZE 48 // TODO derive via sizeof color_picker_hues and/or color_picker_palette_keycodes?
@@ -215,6 +213,13 @@ void matrix_init_user(void) {
 */
     for (int i = 0; i < PALETTE_SIZE; ++i) {
         color_picker_hues[i] = round(i * 256.0/48);
+    }
+
+    // [FN-HI]
+    // TODO? only do for layers MAC_FN and WIN_FN (rather than all layers), since FN-HI only uses those layers (see
+    //       rgb_matrix_indicators_user)
+    for (int layer = 0; layer < NUM_LAYERS; ++layer) {
+        layer_used_indices_size[layer] = initialize_layer_used_indices(layer, layers_used_indices[layer]);
     }
 }
 
@@ -359,11 +364,7 @@ bool rgb_matrix_indicators_user(void) {
         // when fn is held down, set lights yellow on keys whose behavior changed from base layer; set others to blue
         // inspired by https://www.reddit.com/r/olkb/comments/kpro3p/comment/h3nb56h
         case MAC_FN:
-        case WIN_FN:
-            // just initialize layers_used_indices[layer] (at most) once per layer
-            if (layer_used_indices_size[layer] == -1) {
-                layer_used_indices_size[layer] = initialize_layer_used_indices(layer, layers_used_indices[layer]);
-            }
+        case WIN_FN:; // ';' since o/w the call following the label is a declaration, which is not a statement
 //            rgb_matrix_set_color_all(255, 255, 0); // uncomment to have transparent keys appear solid blue
             RGB rgb = hsv_to_rgb(rgb_matrix_get_hsv());
             // TODO what exactly _is_ the color returned by rgb_matrix_get_hsv()? is this some overall color (as opposed
