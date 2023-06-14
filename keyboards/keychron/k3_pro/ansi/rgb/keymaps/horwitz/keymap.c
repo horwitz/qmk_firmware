@@ -75,7 +75,6 @@ enum layers {
     CLR_PKR // [CPICK]
 };
 // [FN-HI]
-#define NUM_LAYERS DYNAMIC_KEYMAP_LAYER_COUNT // TODO? derive from elsewhere? inline?
 #define NUM_KEYS 84 // TODO? derive from... somewhere (RGB_MATRIX_LED_COUNT? LED count not exactly the same a # keys...)
 
 // [CPICK]
@@ -194,8 +193,8 @@ int initialize_layer_used_indices(int layer, char* layer_used_indices) {
 }
 
 // [FN-HI]
-char layers_used_indices[NUM_LAYERS][NUM_KEYS];
-int layer_used_indices_size[NUM_LAYERS];
+char layers_used_indices[DYNAMIC_KEYMAP_LAYER_COUNT][NUM_KEYS];
+int layer_used_indices_size[DYNAMIC_KEYMAP_LAYER_COUNT];
 
 // [CPICK]
 #define PALETTE_SIZE 48 // TODO derive via sizeof color_picker_hues and/or color_picker_palette_keycodes?
@@ -222,7 +221,7 @@ void matrix_init_user(void) {
     // [FN-HI]
     // TODO? only do for layer = MAC_FN and layer = WIN_FN (rather than all layers), since FN-HI only uses those layers
     //       (see rgb_matrix_indicators_user)
-    for (int layer = 0; layer < NUM_LAYERS; ++layer) {
+    for (int layer = 0; layer < DYNAMIC_KEYMAP_LAYER_COUNT; ++layer) {
         layer_used_indices_size[layer] = initialize_layer_used_indices(layer, layers_used_indices[layer]);
     }
 }
