@@ -92,6 +92,8 @@ enum ctrl_keycodes {
         COLOR40, COLOR41, COLOR42, COLOR43,
         COLOR44, COLOR45, COLOR46, COLOR47
 };
+int MIN_COLOR_KEYCODE = COLOR00;
+int MAX_COLOR_KEYCODE = COLOR47;
 
 // [DEBUG]
 #if DEBUG
@@ -292,69 +294,21 @@ int get_color_picker_keycode_index(uint16_t keycode) {
 }
 
 // [CPICK]
+bool is_color_picker_color_keycode(uint16_t keycode) {
+    return keycode >= MIN_COLOR_KEYCODE && keycode <= MAX_COLOR_KEYCODE;
+}
+
+// [CPICK]
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool retval = true;
-     // TODO? convert switch to "if (keycode >= COLOR00 && keycode <=COLOR47)"--or even
-     //       "if (is_color_picker_color_keycode(keycode))", where "is_color_picker_color_keycode(uint16_t keycode)" is
-     //       "return keycode >= COLOR00 && keycode <=COLOR47;"
-    switch (keycode) {
-        case COLOR00:
-        case COLOR01:
-        case COLOR02:
-        case COLOR03:
-        case COLOR04:
-        case COLOR05:
-        case COLOR06:
-        case COLOR07:
-        case COLOR08:
-        case COLOR09:
-        case COLOR10:
-        case COLOR11:
-        case COLOR12:
-        case COLOR13:
-        case COLOR14:
-        case COLOR15:
-        case COLOR16:
-        case COLOR17:
-        case COLOR18:
-        case COLOR19:
-        case COLOR20:
-        case COLOR21:
-        case COLOR22:
-        case COLOR23:
-        case COLOR24:
-        case COLOR25:
-        case COLOR26:
-        case COLOR27:
-        case COLOR28:
-        case COLOR29:
-        case COLOR30:
-        case COLOR31:
-        case COLOR32:
-        case COLOR33:
-        case COLOR34:
-        case COLOR35:
-        case COLOR36:
-        case COLOR37:
-        case COLOR38:
-        case COLOR39:
-        case COLOR40:
-        case COLOR41:
-        case COLOR42:
-        case COLOR43:
-        case COLOR44:
-        case COLOR45:
-        case COLOR46:
-        case COLOR47:
-            if (record -> event.pressed) {
-                rgb_matrix_mode(1);
-                rgb_matrix_sethsv(color_picker_hues[get_color_picker_keycode_index(keycode)], 255, 255);
-            }
-            retval = false;
-            break;
-
-        default:
-            retval = true; // process all other keycodes normally
+    if (is_color_picker_color_keycode(keycode)) {
+        if (record -> event.pressed) {
+            rgb_matrix_mode(1);
+            rgb_matrix_sethsv(color_picker_hues[get_color_picker_keycode_index(keycode)], 255, 255);
+        }
+        retval = false;
+    } else {
+        retval = true; // process all other keycodes normally
     }
 
     return retval;
