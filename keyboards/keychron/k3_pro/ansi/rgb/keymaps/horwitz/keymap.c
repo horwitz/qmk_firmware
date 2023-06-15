@@ -413,6 +413,11 @@ bool rgb_matrix_indicators_user(void) {
 
             break;
     }
-
-    return true; // TODO should this always be true?
+    // TODO should this always return true?
+    // assuming effects set to RGB_MATRIX_SOLID_COLOR
+    // return true: if CAPS off, CAPS matches solid color; if CAPS on, CAPS is red
+    // return false: if CAPS off, CAPS matches solid color; if CAPS on, CAPS is some color that is a function of the
+    //               solid color (e.g., if solid color is blue, CAPS is magenta(ish) when on; if solid color is green,
+    //                CAPS is yellow(ish) when on)
+    return true;
 }
