@@ -303,7 +303,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool retval = true;
     if (is_color_picker_color_keycode(keycode)) {
         if (record -> event.pressed) {
-            rgb_matrix_mode(1);
+            rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
             rgb_matrix_sethsv(color_picker_hues[get_color_picker_keycode_index(keycode)], 255, 255);
         }
         retval = false;
