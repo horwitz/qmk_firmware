@@ -198,7 +198,10 @@ char layers_used_indices[DYNAMIC_KEYMAP_LAYER_COUNT][RGB_MATRIX_LED_COUNT];
 int layer_used_indices_size[DYNAMIC_KEYMAP_LAYER_COUNT];
 
 // [CPICK]
-#define PALETTE_SIZE 48 // TODO derive via sizeof color_picker_hues and/or color_picker_palette_keycodes?
+// TODO? (1) derive via sizeof color_picker_hues and/or color_picker_palette_keycodes OR (2) validate that
+//       color_picker_palette_keycodes is initialized with an rvalue of PALETTE_SIZE elements (see comment above
+//       color_picker_palette_keycodes's initialization)
+#define PALETTE_SIZE 48
 
 // [CPICK]
 int color_picker_hues[PALETTE_SIZE];
