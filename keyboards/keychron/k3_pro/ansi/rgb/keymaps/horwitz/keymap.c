@@ -327,7 +327,7 @@ bool rgb_matrix_indicators_user(void) {
         // inspired by https://www.reddit.com/r/olkb/comments/kpro3p/comment/h3nb56h
         case MAC_FN:
         case WIN_FN:; // ';' since o/w the call following the label is a declaration, which is not a statement
-//            rgb_matrix_set_color_all(255, 255, 0); // uncomment to have transparent keys appear solid blue
+//            rgb_matrix_set_color_all(RGB_BLUE); // uncomment to have transparent keys appear solid blue
             RGB rgb = hsv_to_rgb(rgb_matrix_get_hsv());
             // TODO what exactly _is_ the color returned by rgb_matrix_get_hsv()? is this some overall color (as opposed
             //      to per-key ones)?
@@ -355,9 +355,9 @@ bool rgb_matrix_indicators_user(void) {
 
         // [CPICK]
         case CLR_PKR:
-            rgb_matrix_set_color_all(0, 0, 0); // set keys not changed below to black
-            rgb_matrix_set_color(0, 255, 0, 0); // ESC red // TODO? different color here
-            // TODO? allow picking white (HSV = (0, 0, 255), RGB = (255, 255, 255))
+            rgb_matrix_set_color_all(RGB_BLACK); // set keys not changed below to black
+            rgb_matrix_set_color(0, RGB_RED); // ESC red // TODO? different color here
+            // TODO? allow picking white and/or black
 
             // [CPICK]
             for (int i = 0; i < PALETTE_SIZE; ++i) {
