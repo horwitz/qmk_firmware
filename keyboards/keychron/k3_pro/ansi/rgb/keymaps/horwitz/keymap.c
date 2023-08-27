@@ -96,17 +96,6 @@ enum ctrl_keycodes {
 int MIN_COLOR_KEYCODE = COLOR00;
 int MAX_COLOR_KEYCODE = COLOR47;
 
-// [DEBUG]
-#if DEBUG
-    void keyboard_post_init_user(void) {
-        // Customise these values to desired behaviour
-        debug_enable = true;
-        debug_matrix = true;
-        debug_keyboard = true;
-    //    debug_mouse = true;
-    }
-#endif
-
 // [SUS-RGB]
 void suspend_power_down_user(void) {
     rgb_matrix_set_suspend_state(true);
@@ -210,7 +199,16 @@ int layer_used_indices_size[DYNAMIC_KEYMAP_LAYER_COUNT];
 int color_picker_hues[PALETTE_SIZE];
 RGB color_picker_rgbs[PALETTE_SIZE];
 
-void matrix_init_user(void) {
+void keyboard_post_init_user(void) {
+    // [DEBUG]
+#if DEBUG
+        // Customise these values to desired behaviour
+        debug_enable = true;
+        debug_matrix = true;
+        debug_keyboard = true;
+    //    debug_mouse = true;
+#endif
+
     // [CPICK]
     /*
       hues:
