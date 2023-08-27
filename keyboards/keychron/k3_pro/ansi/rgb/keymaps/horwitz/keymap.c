@@ -27,33 +27,34 @@
  *
  * (2) SHORT NAME: [FN-HI]
  *     DETAILS: When the `fn` key is pressed, the keys with new keycodes (i.e., not `KC_TRNS`) will light up in the
- *              color complementary to the color** of layer 0***; the remaining keys will retain the lighting behavior
- *              from the previous level.
+ *              color complementary to the color† of layer 0‡; the remaining keys will retain the lighting behavior
+ *              from before the `fn` key was pressed.
  *     TO ACTIVATE: The feature is always on.
  *
  * (3) SHORT NAME: [CPICK]
- *     DETAILS: `fn+V` presents a 12x4 rainbow grid of keys (with the remaining keys dark)--pressing any one of these
+ *     DETAILS: `fn+V` presents a 12x4 rainbow grid of keys (with the remaining keys§ dark)--pressing any one of these
  *              keys sets the base layer (e.g., layer 0 when `fn` goes to layer 1) to a solid pattern of that color. The
  *              top row (of four rows) are primary, secondary, and tertiary colors--in standard order: red (1),
  *              orange (3), yellow (2), chartreuse (3), green (1), spring green (3), cyan (2), azure (3), blue (1),
  *              violet (3), magenta (2), rose (3) (colors, going down then across, increase in hue by approximately 1/48
- *              (in a range of [0,1)) (w/saturation and value both of 1 (in [0,1])).
+ *              (in a range of [0,1)) (w/(HSV) saturation and value both of 1 (in [0,1])).
  *     TO ACTIVATE: The feature is always on.
  *     NOTE: The feature creates a fifth layer (layer 4) for the rainbow grid (meant only to be accessed for the
- *           purposes mentioned above in DETAILS. Actual hue values are encoded as integers in [0,256) (scaled from
+ *           purposes mentioned above in DETAILS). Actual hue values are encoded as integers in [0,256) (scaled from
  *           [0,1)).
  * (4) SHORT NAME: [SUS-RGB]
- *     DETAILS: Turns off lighting when the laptop sleeps (and similar(?) behavior).
+ *     DETAILS: Turns off lighting when the laptop sleeps (and for similar(?) behavior).
  *     TO ACTIVATE: The feature is always on.
  *
- * * notation just for documentation (when I comment with the SHORT NAME is found, the code below--continuing until the
+ * * notation just for documentation (when a comment with the SHORT NAME is found, the code below--continuing until the
  *   next blank line--is park of the feature with that SHORT NAME (additionally: some single lines have a comment with
  *   the short name at the end of the line, meaning that that one line should be taken into account, rather than
  *   continuing on to the next blank line)... also it is (or at least should be) the case that _all_ of the code for the
- *   feature is commented in that fashion
- * ** main(?)
- * *** or is it the layer from which one came (e.g., starting at a base layer of 2, will these be complementary to layer
- *     2's color**)?
+ *   feature is commented in that fashion)
+ * † main(?) color
+ * ‡ or is it the layer from which one came (e.g., starting at a base layer of 2, will these be complementary to layer
+ *     2's color†)?
+ * § Esc is set to RGB_RED and, when hit, leaves the layer, making to change to the base layer's color
  */
 
 // [DEBUG]
