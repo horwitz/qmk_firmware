@@ -58,7 +58,7 @@
  */
 
 // [DEBUG]
-#define DEBUG 0
+#define DEBUG 1//0
 
 #include QMK_KEYBOARD_H
 #include <math.h> // for round() // [CPICK]
@@ -67,13 +67,39 @@
     #include "print.h"
 #endif
 
+// TODO(?) use macros instead of a function (for bound)
+/*
+#define min(a,b) \
+    ({ __typeof__ (a) _a = (a); \
+        __typeof__ (b) _b = (b); \
+    _a < _b ? _a : _b; })
+#define max(a,b) \
+    ({ __typeof__ (a) _a = (a); \
+        __typeof__ (b) _b = (b); \
+    _a > _b ? _a : _b; })
+// if a is in [0, 255], returns a; if a < 0, return 0; if a > 255, return 255
+#define bound(a) \
+    ({ __typeof__ (a) _a = (a); \
+    max(min(_a, 255), 0); })
+*/
+int bound(int a) {
+    if (a < 0) {
+        return 0;
+    } else if (a > 255) {
+        return 255;
+    } else {
+        return a;
+    }
+}
+
 // clang-format off
 enum layers {
     MAC_BASE,
     MAC_FN,
     WIN_BASE,
     WIN_FN,
-    CLR_PKR // [CPICK]
+    CLR_PKR, // [CPICK]
+    ECP // [ECP]
 };
 
 // [CPICK]
@@ -91,10 +117,19 @@ enum ctrl_keycodes {
         COLOR32, COLOR33, COLOR34, COLOR35,
         COLOR36, COLOR37, COLOR38, COLOR39,
         COLOR40, COLOR41, COLOR42, COLOR43,
-        COLOR44, COLOR45, COLOR46, COLOR47
+        COLOR44, COLOR45, COLOR46, COLOR47,
+
+// [ECP] // meta ECP
+        TOECP,
+// [ECP]
+        RHI, RLI, GHI, GLI, BHI, BLI,
+        RHD, RLD, GHD, GLD, BHD, BLD,
+        ECPSET
 };
 int MIN_COLOR_KEYCODE = COLOR00;
 int MAX_COLOR_KEYCODE = COLOR47;
+int MIN_ECP_CHANGE_KEYCODE = RHI;
+int MAX_ECP_CHANGE_KEYCODE = ECPSET;
 
 // [SUS-RGB]
 void suspend_power_down_user(void) {
@@ -120,7 +155,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TRNS,  BT_HST1,  BT_HST2,  BT_HST3,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      KC_TRNS,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,            KC_TRNS,
-     KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,OSL(CLR_PKR),BAT_LVL, NK_TOGG,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS, // [CPICK] ("OSL(CLR_PKR)")
+     KC_TRNS,            KC_TRNS,  KC_TRNS,  TOECP,  OSL(CLR_PKR),BAT_LVL, NK_TOGG,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,  // [ECP] ("TO(ECP)") // [CPICK] ("OSL(CLR_PKR)")
      KC_TRNS,  KC_TRNS,  KC_TRNS,                                KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [WIN_BASE] = LAYOUT_ansi_84(
@@ -136,7 +171,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TRNS,  BT_HST1,  BT_HST2,  BT_HST3,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      KC_TRNS,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,            KC_TRNS,
-     KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,OSL(CLR_PKR),BAT_LVL, NK_TOGG,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS, // [CPICK] ("OSL(CLR_PKR)")
+     KC_TRNS,            KC_TRNS,  KC_TRNS,  TOECP,  OSL(CLR_PKR),BAT_LVL, NK_TOGG,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,  // [ECP] ("TO(ECP)") // [CPICK] ("OSL(CLR_PKR)")
      KC_TRNS,  KC_TRNS,  KC_TRNS,                                KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 // [CPICK]
@@ -147,6 +182,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      COLOR01,  COLOR05,  COLOR09,  COLOR13,  COLOR17,  COLOR21,  COLOR25,  COLOR29,  COLOR33,  COLOR37,  COLOR41,  COLOR45,  _______,  _______,            _______,
      COLOR02,  COLOR06,  COLOR10,  COLOR14,  COLOR18,  COLOR22,  COLOR26,  COLOR30,  COLOR34,  COLOR38,  COLOR42,  COLOR46,            _______,            _______,
      COLOR03,            COLOR07,  COLOR11,  COLOR15,  COLOR19,  COLOR23,  COLOR27,  COLOR31,  COLOR35,  COLOR39,  COLOR43,            COLOR47,  _______,  _______,
+     _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
+
+// [ECP]
+[ECP] = LAYOUT_ansi_84(
+     // TODO go back to WIN_BASE (instead of MAC_BASE) as appropriate
+     TO(MAC_BASE),_______,_______, _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
+     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
+     _______,  RHI,      RLI,      GHI,      GLI,      BHI,      BLI,      _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
+     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            ECPSET,             _______,
+     _______,            RHD,      RLD,      GHD,      GLD,      BHD,      BLD,      _______,  _______,  _______,  _______,            _______,  _______,  _______,
      _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______)
 };
 
@@ -205,8 +250,8 @@ void keyboard_post_init_user(void) {
 #if DEBUG
         // Customise these values to desired behaviour
         debug_enable = true;
-        debug_matrix = true;
-        debug_keyboard = true;
+//        debug_matrix = true;
+//        debug_keyboard = true;
     //    debug_mouse = true;
 #endif
 
@@ -298,6 +343,61 @@ bool is_color_picker_color_keycode(uint16_t keycode) {
     return keycode >= MIN_COLOR_KEYCODE && keycode <= MAX_COLOR_KEYCODE;
 }
 
+// [ECP]
+bool is_ecp_change_keycode(uint16_t keycode) {
+    return keycode >= MIN_ECP_CHANGE_KEYCODE && keycode <= MAX_ECP_CHANGE_KEYCODE;
+}
+
+// [ECP]
+int index_in_byte = -1; // 0-15 value equal to the last hex value edited (one of RH, RL, GH, GL, BH, BL)
+
+// [ECP]
+// from lv_color.c
+// TODO!!! is working??
+HSV rgb_to_hsv(RGB rgb) {
+    uint16_t r = ((uint32_t)(rgb.r) << 10) / 255;
+    uint16_t g = ((uint32_t)(rgb.g) << 10) / 255;
+    uint16_t b = ((uint32_t)(rgb.b) << 10) / 255;
+    uint16_t rgbMin = r < g ? (r < b ? r : b) : (g < b ? g : b);
+    uint16_t rgbMax = r > g ? (r > b ? r : b) : (g > b ? g : b);
+    HSV hsv;
+    // https://en.wikipedia.org/wiki/HSL_and_HSV#Lightness
+    hsv.v = (255 * rgbMax) >> 10;
+    int32_t delta = rgbMax - rgbMin;
+    if (delta < 3) {
+        hsv.h = 0;
+        hsv.s = 0;
+        return hsv;
+    }
+    // https://en.wikipedia.org/wiki/HSL_and_HSV#Saturation
+    hsv.s = 255 * delta / rgbMax;
+    if (hsv.s < 3) {
+        hsv.h = 0;
+        return hsv;
+    }
+    // https://en.wikipedia.org/wiki/HSL_and_HSV#Hue_and_chroma
+    int32_t h;
+    if (rgbMax == r) {
+        h = (((g - b) << 10) / delta) + (g < b ? (6 << 10) : 0); // between yellow & magenta
+    } else if (rgbMax == g) {
+        h = (((b - r) << 10) / delta) + (2 << 10); // between cyan & yellow
+    } else if (rgbMax == b) {
+        h = (((r - g) << 10) / delta) + (4 << 10); // between magenta & cyan
+    } else { // should not occur!
+        h = 0;
+    }
+    h *= 60;
+    h >>= 10;
+    if (h < 0) {
+        h += 360;
+    }
+    hsv.h = h * 255.0 / 360;
+    return hsv;
+}
+
+// [ECP]
+RGB ecpRgb = { 128, 128, 128 }; // TODO!! do this differently--get a current state when entering ECP layer?
+
 // [CPICK]
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool retval = true;
@@ -307,6 +407,102 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             rgb_matrix_sethsv(color_picker_hues[get_color_picker_keycode_index(keycode)], 255, 255);
         }
         retval = false;
+    // [ECP]
+    } else if (is_ecp_change_keycode(keycode)) {
+        if (record -> event.pressed) {
+//            // get current color
+//            RGB rgb = hsv_to_rgb(rgb_matrix_get_hsv());
+RGB rgb = ecpRgb; // TODO don't need redundant variables
+            uprintf("keycode-RHI: %2u\n", keycode - RHI);
+            uprintf(">> rgb: (%2u,%2u,%2u)\n", rgb.r, rgb.g, rgb.b);
+            // if RHI, rgb.r += 16, index_in_byte = rgb.r/16
+            // if RHD, rgb.r -= 16, index_in_byte = rgb.r/16
+            // if RLI, ++(rgb.r), index_in_byte = rgb.r % 16
+            // ...
+            // if BLD, --(rgb.b), index_in_byte = rgb.b % 16
+            RGB rgb_new = rgb;
+            switch (keycode) {
+                case RHI:
+                    uprintf("RHI\n");
+//                    uprintf("max(-1,0)=%u, max(3,0)=%u, min(256,255)=%u, min(2,255)=%u\n\n", max(-1,0), max(3,0), min(256,255), min(2,255));
+uprintf("bound(255+16): %2u\n", bound(255+16));
+                    rgb_new.r = bound(rgb.r + 16);
+                    uprintf("rgb.r: %2u / rgb_new.r: %2u\n", rgb.r, rgb_new.r);
+                    index_in_byte = rgb_new.r / 16;
+                    break;
+                case RHD:
+                    uprintf("RHD\n");
+                    rgb_new.r = bound(rgb.r - 16);
+                    index_in_byte = rgb_new.r / 16;
+                    break;
+                case RLI:
+                    uprintf("RLI\n");
+                    rgb_new.r = bound(rgb.r + 1);
+                    index_in_byte = rgb_new.r % 16;
+                    break;
+                case RLD:
+                    uprintf("RLD\n");
+                    rgb_new.r = bound(rgb.r - 1);
+                    index_in_byte = rgb_new.r % 16;
+                    break;
+                case GHI:
+                    rgb_new.g = bound(rgb.g + 16);
+                    index_in_byte = rgb_new.g / 16;
+                    break;
+                case GHD:
+                    rgb_new.g = bound(rgb.g - 16);
+                    index_in_byte = rgb_new.g / 16;
+                    break;
+                case GLI:
+                    rgb_new.g = bound(rgb.g + 1);
+                    index_in_byte = rgb_new.g % 16;
+                    break;
+                case GLD:
+                    rgb_new.g = bound(rgb.g - 1);
+                    index_in_byte = rgb_new.g % 16;
+                    break;
+                case BHI:
+                    rgb_new.b = bound(rgb.b + 16);
+                    index_in_byte = rgb_new.b / 16;
+                    break;
+                case BHD:
+                    rgb_new.b = bound(rgb.b - 16);
+                    index_in_byte = rgb_new.b / 16;
+                    break;
+                case BLI:
+                    rgb_new.b = bound(rgb.b + 1);
+                    index_in_byte = rgb_new.b % 16;
+                    break;
+                case BLD:
+                    rgb_new.b = bound(rgb.b - 1);
+                    index_in_byte = rgb_new.b % 16;
+                    break;
+                case ECPSET:
+                    rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
+                    HSV hsv = rgb_to_hsv(ecpRgb);
+uprintf("ECPSET: ecpRgb=(%2u,%2u,%2u) -> hsv=(%2u, %2u, %2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b, hsv.h, hsv.s, hsv.v);
+                    rgb_matrix_sethsv(hsv.h, hsv.s, hsv.v);
+                    layer_off(ECP);
+                    break;
+                default:
+                    // TODO? throw exception
+                    break;
+            }
+            uprintf("<< rgb: (%2u,%2u,%2u)\n", rgb_new.r, rgb_new.g, rgb_new.b);
+            uprintf("iib: %2u\n", index_in_byte);
+            // TODO? set directly from [rgb] (i.e., use rgb_matrix_set_color_all ?) (instead of rgb_matrix_sethsv)
+            // set current color
+//            rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
+//            rgb_matrix_set_color_all(rgb_new.r, rgb_new.g, rgb_new.b);
+//            HSV hsv = rgb_to_hsv(rgb_new);
+//            rgb_matrix_sethsv(hsv.h, hsv.s, hsv.v);
+            ecpRgb = rgb_new; // TODO do we need ecpRgb and rgb_new ?
+        }
+        retval = false;
+    } else if (keycode == TOECP) {
+        ecpRgb = hsv_to_rgb(rgb_matrix_get_hsv());
+        layer_on(ECP);
+        retval = false; // process all other keycodes normally
     } else {
         retval = true; // process all other keycodes normally
     }
@@ -314,7 +510,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return retval;
 }
 
-bool rgb_matrix_indicators_user(void) {
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     uint8_t layer = biton32(layer_state);
 
     switch (layer) {
@@ -326,7 +522,7 @@ bool rgb_matrix_indicators_user(void) {
         // when fn is held down, set lights yellow on keys whose behavior changed from base layer; set others to blue
         // inspired by https://www.reddit.com/r/olkb/comments/kpro3p/comment/h3nb56h
         case MAC_FN:
-        case WIN_FN:; // ';' since o/w the call following the label is a declaration, which is not a statement
+        case WIN_FN: {
 //            rgb_matrix_set_color_all(RGB_BLUE); // uncomment to have transparent keys appear solid blue
             RGB rgb = hsv_to_rgb(rgb_matrix_get_hsv());
             // TODO what exactly _is_ the color returned by rgb_matrix_get_hsv()? is this some overall color (as opposed
@@ -352,9 +548,10 @@ bool rgb_matrix_indicators_user(void) {
                 );
             }
             break;
+        }
 
         // [CPICK]
-        case CLR_PKR:
+        case CLR_PKR: {
             rgb_matrix_set_color_all(RGB_BLACK); // set keys not changed below to black
             rgb_matrix_set_color(0, RGB_RED); // ESC red // TODO? different color here
             // TODO? allow picking white and/or black
@@ -366,6 +563,68 @@ bool rgb_matrix_indicators_user(void) {
             }
 
             break;
+        }
+
+        // [ECP]
+        case ECP: {
+//            RGB ecpRgb = hsv_to_rgb(rgb_matrix_get_hsv());
+//ecpRgb.r = 16;
+//ecpRgb.g = 128;
+//ecpRgb.b = 240;
+            // set A,S to R level; D,F to G level; G,H to B level; set ENTER white; set all else black
+            rgb_matrix_set_color_all(RGB_BLACK); // set keys not changed below to black // TODO!! clean up lights... somehow when entering ECP layer
+            rgb_matrix_set_color(0, RGB_RED); // ESC red // TODO? different color here
+//            uprintf("R (AS): %2u / G (DF): %2u / B (GH): %2u\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
+
+            rgb_matrix_set_color(32, bound(ecpRgb.r + 16), ecpRgb.g, ecpRgb.b); // Q
+//uprintf("Q: (%2u, %2u, %2u)\n", bound(ecpRgb.r + 16), ecpRgb.g, ecpRgb.b);
+            rgb_matrix_set_color(33, bound(ecpRgb.r + 1), ecpRgb.g, ecpRgb.b); // W
+//uprintf("W: (%2u, %2u, %2u)\n", bound(ecpRgb.r + 1), ecpRgb.g, ecpRgb.b);
+            rgb_matrix_set_color(34, ecpRgb.r, bound(ecpRgb.g + 16), ecpRgb.b); // E
+            rgb_matrix_set_color(35, ecpRgb.r, bound(ecpRgb.g + 1), ecpRgb.b); // R
+            rgb_matrix_set_color(36, ecpRgb.r, ecpRgb.g, bound(ecpRgb.b + 16)); // T
+            rgb_matrix_set_color(37, ecpRgb.r, ecpRgb.g, bound(ecpRgb.b + 1)); // Y
+
+            rgb_matrix_set_color(39, ecpRgb.r, ecpRgb.g, ecpRgb.b); // I
+            rgb_matrix_set_color(40, ecpRgb.r, ecpRgb.g, ecpRgb.b); // O
+            rgb_matrix_set_color(41, ecpRgb.r, ecpRgb.g, ecpRgb.b); // P
+            rgb_matrix_set_color(54, ecpRgb.r, ecpRgb.g, ecpRgb.b); // K
+            rgb_matrix_set_color(55, ecpRgb.r, ecpRgb.g, ecpRgb.b); // L
+            rgb_matrix_set_color(56, ecpRgb.r, ecpRgb.g, ecpRgb.b); // ;
+            rgb_matrix_set_color(68, ecpRgb.r, ecpRgb.g, ecpRgb.b); // ,
+            rgb_matrix_set_color(69, ecpRgb.r, ecpRgb.g, ecpRgb.b); // .
+            rgb_matrix_set_color(70, ecpRgb.r, ecpRgb.g, ecpRgb.b); // /
+
+            rgb_matrix_set_color(47, ecpRgb.r, 0, 0); // A
+            rgb_matrix_set_color(48, ecpRgb.r, 0, 0); // S
+            rgb_matrix_set_color(49, 0, ecpRgb.g, 0); // D
+            rgb_matrix_set_color(50, 0, ecpRgb.g, 0); // F
+            rgb_matrix_set_color(51, 0, 0, ecpRgb.b); // G
+            rgb_matrix_set_color(52, 0, 0, ecpRgb.b); // H
+
+            rgb_matrix_set_color(61, bound(ecpRgb.r - 16), ecpRgb.g, ecpRgb.b); // Z
+//uprintf("Z: (%2u, %2u, %2u)\n", bound(ecpRgb.r - 16), ecpRgb.g, ecpRgb.b);
+            rgb_matrix_set_color(62, bound(ecpRgb.r - 1), ecpRgb.g, ecpRgb.b); // X
+//uprintf("X: (%2u, %2u, %2u)\n", bound(ecpRgb.r - 1), ecpRgb.g, ecpRgb.b);
+            rgb_matrix_set_color(63, ecpRgb.r, bound(ecpRgb.g - 16), ecpRgb.b); // C
+            rgb_matrix_set_color(64, ecpRgb.r, bound(ecpRgb.g - 1), ecpRgb.b); // V
+            rgb_matrix_set_color(65, ecpRgb.r, ecpRgb.g, bound(ecpRgb.b - 16)); // B
+            rgb_matrix_set_color(66, ecpRgb.r, ecpRgb.g, bound(ecpRgb.b - 1)); // N
+
+            rgb_matrix_set_color(58, RGB_WHITE); // ENTER
+
+            if (index_in_byte >= 0) {
+//                uprintf("setting 0-%2u to white\n", index_in_byte);
+            }
+            // if index_in_byte >= 0, color ESC (white)
+            // and if index_in_byte >= 1, color F1
+            // ...
+            // and if index_in_byte >= 15, color RGB_TOG
+            for (int top_row_keycode = 0; top_row_keycode <= index_in_byte; ++top_row_keycode) {
+                rgb_matrix_set_color(top_row_keycode, RGB_WHITE); // TODO? some other color than white (perhaps state dependent?)
+            }
+            break;
+        }
     }
     // TODO should this always return true?
     // assuming effects set to RGB_MATRIX_SOLID_COLOR
