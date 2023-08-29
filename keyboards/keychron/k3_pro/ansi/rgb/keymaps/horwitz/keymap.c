@@ -427,69 +427,68 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // [ECP]
     } else if (is_ecp_change_keycode(keycode)) {
         if (record -> event.pressed) {
-RGB rgb = ecpRgb; // TODO don't need redundant variables
 //            uprintf("keycode-RHI: %2u\n", keycode - RHI);
-//            uprintf(">> rgb: (%2u,%2u,%2u)\n", rgb.r, rgb.g, rgb.b);
-            // if RHI, rgb.r += 16, index_in_byte = rgb.r/16
-            // if RHD, rgb.r -= 16, index_in_byte = rgb.r/16
-            // if RLI, ++(rgb.r), index_in_byte = rgb.r % 16
+//            uprintf(">> ecpRgb: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
+            // if RHI, ecpRgb.r += 16, index_in_byte = ecpRgb.r/16
+            // if RHD, ecpRgb.r -= 16, index_in_byte = ecpRgb.r/16
+            // if RLI, ++(ecpRgb.r), index_in_byte = ecpRgb.r % 16
             // ...
-            // if BLD, --(rgb.b), index_in_byte = rgb.b % 16
-            RGB rgb_new = rgb;
+            // if BLD, --(ecpRgb.b), index_in_byte = ecpRgb.b % 16
+            RGB rgb_new = ecpRgb; // TODO is this variable redundant?
             switch (keycode) {
                 case RHI:
 //                    uprintf("RHI\n");
 //                    uprintf("max(-1,0)=%u, max(3,0)=%u, min(256,255)=%u, min(2,255)=%u\n\n", max(-1,0), max(3,0), min(256,255), min(2,255));
 //                    uprintf("bound(255+16): %2u\n", bound(255+16));
-                    rgb_new.r = bound(rgb.r + 16);
-//                    uprintf("rgb.r: %2u / rgb_new.r: %2u\n", rgb.r, rgb_new.r);
+                    rgb_new.r = bound(ecpRgb.r + 16);
+//                    uprintf("ecpRgb.r: %2u / rgb_new.r: %2u\n", rgecpRgbb.r, rgb_new.r);
                     index_in_byte = rgb_new.r / 16;
                     break;
                 case RHD:
 //                    uprintf("RHD\n");
-                    rgb_new.r = bound(rgb.r - 16);
+                    rgb_new.r = bound(ecpRgb.r - 16);
                     index_in_byte = rgb_new.r / 16;
                     break;
                 case RLI:
 //                    uprintf("RLI\n");
-                    rgb_new.r = bound(rgb.r + 1);
+                    rgb_new.r = bound(ecpRgb.r + 1);
                     index_in_byte = rgb_new.r % 16;
                     break;
                 case RLD:
 //                    uprintf("RLD\n");
-                    rgb_new.r = bound(rgb.r - 1);
+                    rgb_new.r = bound(ecpRgb.r - 1);
                     index_in_byte = rgb_new.r % 16;
                     break;
                 case GHI:
-                    rgb_new.g = bound(rgb.g + 16);
+                    rgb_new.g = bound(ecpRgb.g + 16);
                     index_in_byte = rgb_new.g / 16;
                     break;
                 case GHD:
-                    rgb_new.g = bound(rgb.g - 16);
+                    rgb_new.g = bound(ecpRgb.g - 16);
                     index_in_byte = rgb_new.g / 16;
                     break;
                 case GLI:
-                    rgb_new.g = bound(rgb.g + 1);
+                    rgb_new.g = bound(ecpRgb.g + 1);
                     index_in_byte = rgb_new.g % 16;
                     break;
                 case GLD:
-                    rgb_new.g = bound(rgb.g - 1);
+                    rgb_new.g = bound(ecpRgb.g - 1);
                     index_in_byte = rgb_new.g % 16;
                     break;
                 case BHI:
-                    rgb_new.b = bound(rgb.b + 16);
+                    rgb_new.b = bound(ecpRgb.b + 16);
                     index_in_byte = rgb_new.b / 16;
                     break;
                 case BHD:
-                    rgb_new.b = bound(rgb.b - 16);
+                    rgb_new.b = bound(ecpRgb.b - 16);
                     index_in_byte = rgb_new.b / 16;
                     break;
                 case BLI:
-                    rgb_new.b = bound(rgb.b + 1);
+                    rgb_new.b = bound(ecpRgb.b + 1);
                     index_in_byte = rgb_new.b % 16;
                     break;
                 case BLD:
-                    rgb_new.b = bound(rgb.b - 1);
+                    rgb_new.b = bound(ecpRgb.b - 1);
                     index_in_byte = rgb_new.b % 16;
                     break;
                 case ECPSET:
@@ -503,7 +502,7 @@ RGB rgb = ecpRgb; // TODO don't need redundant variables
                     // TODO? throw exception
                     break;
             }
-//            uprintf("<< rgb: (%2u,%2u,%2u)\n", rgb_new.r, rgb_new.g, rgb_new.b);
+//            uprintf("<< rgb_new: (%2u,%2u,%2u)\n", rgb_new.r, rgb_new.g, rgb_new.b);
 //            uprintf("iib: %2u\n", index_in_byte);
             ecpRgb = rgb_new; // TODO do we need ecpRgb and rgb_new ?
         }
