@@ -363,6 +363,7 @@ bool is_color_picker_color_keycode(uint16_t keycode) {
 }
 
 // [ECP]
+// NB: does NOT include TOECP (which is not on the ECP layer)
 bool is_ecp_change_keycode(uint16_t keycode) {
     return keycode >= MIN_ECP_CHANGE_KEYCODE && keycode <= MAX_ECP_CHANGE_KEYCODE;
 }
@@ -371,7 +372,8 @@ bool is_ecp_change_keycode(uint16_t keycode) {
 int index_in_byte = -1; // 0-15 value equal to the last hex value edited (one of RH, RL, GH, GL, BH, BL)
 
 // [ECP]
-// from lv_color.c
+// from lv_color.c (adapted to [0-255]x[0-255]x[0-255] -> [0-255]x[0-255]x[0-255]
+// TODO! is this right?
 HSV rgb_to_hsv(RGB rgb) {
     uint16_t r = ((uint32_t)(rgb.r) << 10) / 255;
     uint16_t g = ((uint32_t)(rgb.g) << 10) / 255;
@@ -430,11 +432,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (record -> event.pressed) {
 //            uprintf("keycode-RHI: %2u\n", keycode - RHI);
 //            uprintf(">> ecpRgb: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
-            // if RHI, ecpRgb.r += 16, index_in_byte = ecpRgb.r/16
-            // if RHD, ecpRgb.r -= 16, index_in_byte = ecpRgb.r/16
-            // if RLI, ++(ecpRgb.r), index_in_byte = ecpRgb.r % 16
+            // if RHI, then ecpRgb.r += 16, index_in_byte = ecpRgb.r/16
+            // if RHD, then ecpRgb.r -= 16, index_in_byte = ecpRgb.r/16
+            // if RLI, then ++(ecpRgb.r), index_in_byte = ecpRgb.r % 16
             // ...
-            // if BLD, --(ecpRgb.b), index_in_byte = ecpRgb.b % 16
+            // if BLD, then --(ecpRgb.b), index_in_byte = ecpRgb.b % 16
             switch (keycode) {
                 case RHI:
 //                    uprintf("RHI\n");
