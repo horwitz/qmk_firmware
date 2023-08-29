@@ -58,11 +58,17 @@
  *              G & H show the blue contribution. Q increases the red contribution by 16 and W increases it by 1--in
  *              both cases stopping at the max of 255. Similarly Z and X respectively lower the red contribution by 16
  *              and 1, stopping at the min of 0. Similarly E,R,C,V raise/lower green by 16 or 1; T,Y,B,N raise/lower
- *              blue by 16 or 1. Each of QWERTYZXCVBN is the color that the picker's current color will change to is
- *              that key is pressed. When any of QWERTYZXCVBN is pressed, the 16 top-row characters (Esc, F1, F2, ...)
- *              light up to show the current modifier's value, in { 0, 1, ..., 15 }: e.g., if Q is pressed and red's
- *              high byte is at 5, it will go up to 6 and the first 7 keys in the top row (Esc, F1, ..., F6) will light
- *              up. 1 light represents a 0, 2 lights represent a 1, ..., all 16 lights represent a 15.
+ *              blue by 16 or 1. Q,E,T show what would happen if red, green, or blue (respectively) were maxed out with
+ *              the current settings kept for the other components; Z,C,B show what would happen if red, green, or blue
+ *              (respectively) were set to 0 with the current settings kept for the other components; W,R,Y show what
+ *              would happen if red, green, or blue (respectively) were brought up to the nearest multiple of 16 above
+ *              the current red, green, or blue (as appropriate) value (unless that's 256, in which case 255 is used);
+ *              X,V,N show what would happen if red, green, or blue (respectively) were brought down to the nearest
+ *              multiple of 16 below the current red, green, or blue (as appropriate) value. When any of QWERTYZXCVBN is
+ *              pressed, the 16 top-row characters (Esc, F1, F2, ...) light up to show the current modifier's value, in
+ *              { 0, 1, ..., 15 }: e.g., if Q is pressed and red's high byte is at 5, it will go up to 6 and the first 7
+ *              keys in the top row (Esc, F1, ..., F6) will light up. 1 light represents a 0, 2 lights represent a 1,
+ *              ..., all 16 lights represent a 15.
  *     TO ACTIVATE: The feature is always on.
  *
  * * notation just for documentation (when a comment with the SHORT NAME is found, the code below--continuing until the
@@ -638,21 +644,20 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
         // [ECP]
         case ECP: {
-            // set A,S to R level; D,F to G level; G,H to B level; set ENTER white; set all else black
+            // set A,S to R level; D,F to G level; G,H to B level; set ENTER white; set some of top row to white (see
+            // below); set QWERTY ZXCVBN as described above; set all else black
             rgb_matrix_set_color_all(RGB_BLACK); // set keys not changed below to black
             // ESC currently used for top-row 0-15 readout instead of signifying that it's the abort key (by coloring it
             // red, e.g.)
 //            rgb_matrix_set_color(0, RGB_RED); // ESC red // TODO? different color here
 //            uprintf("R (AS): %2u / G (DF): %2u / B (GH): %2u\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
 
-            rgb_matrix_set_color(32, bound(ecpRgb.r + 16), ecpRgb.g, ecpRgb.b); // Q
-//            uprintf("Q: (%2u, %2u, %2u)\n", bound(ecpRgb.r + 16), ecpRgb.g, ecpRgb.b);
-            rgb_matrix_set_color(33, bound(ecpRgb.r + 1), ecpRgb.g, ecpRgb.b); // W
-//            uprintf("W: (%2u, %2u, %2u)\n", bound(ecpRgb.r + 1), ecpRgb.g, ecpRgb.b);
-            rgb_matrix_set_color(34, ecpRgb.r, bound(ecpRgb.g + 16), ecpRgb.b); // E
-            rgb_matrix_set_color(35, ecpRgb.r, bound(ecpRgb.g + 1), ecpRgb.b); // R
-            rgb_matrix_set_color(36, ecpRgb.r, ecpRgb.g, bound(ecpRgb.b + 16)); // T
-            rgb_matrix_set_color(37, ecpRgb.r, ecpRgb.g, bound(ecpRgb.b + 1)); // Y
+            rgb_matrix_set_color(32, 255, ecpRgb.g, ecpRgb.b); // Q
+            rgb_matrix_set_color(33, (ecpRgb.r / 16) * 16 + 16 - 1, ecpRgb.g, ecpRgb.b); // W
+            rgb_matrix_set_color(34, ecpRgb.r, 255, ecpRgb.b); // E
+            rgb_matrix_set_color(35, ecpRgb.r, (ecpRgb.g / 16) * 16 + 16 - 1, ecpRgb.b); // R
+            rgb_matrix_set_color(36, ecpRgb.r, ecpRgb.g, 255); // T
+            rgb_matrix_set_color(37, ecpRgb.r, ecpRgb.g, (ecpRgb.b / 16) * 16 + 16 - 1); // Y
 
             rgb_matrix_set_color(39, ecpRgb.r, ecpRgb.g, ecpRgb.b); // I
             rgb_matrix_set_color(40, ecpRgb.r, ecpRgb.g, ecpRgb.b); // O
@@ -671,14 +676,12 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             rgb_matrix_set_color(51, 0, 0, ecpRgb.b); // G
             rgb_matrix_set_color(52, 0, 0, ecpRgb.b); // H
 
-            rgb_matrix_set_color(61, bound(ecpRgb.r - 16), ecpRgb.g, ecpRgb.b); // Z
-//            uprintf("Z: (%2u, %2u, %2u)\n", bound(ecpRgb.r - 16), ecpRgb.g, ecpRgb.b);
-            rgb_matrix_set_color(62, bound(ecpRgb.r - 1), ecpRgb.g, ecpRgb.b); // X
-//            uprintf("X: (%2u, %2u, %2u)\n", bound(ecpRgb.r - 1), ecpRgb.g, ecpRgb.b);
-            rgb_matrix_set_color(63, ecpRgb.r, bound(ecpRgb.g - 16), ecpRgb.b); // C
-            rgb_matrix_set_color(64, ecpRgb.r, bound(ecpRgb.g - 1), ecpRgb.b); // V
-            rgb_matrix_set_color(65, ecpRgb.r, ecpRgb.g, bound(ecpRgb.b - 16)); // B
-            rgb_matrix_set_color(66, ecpRgb.r, ecpRgb.g, bound(ecpRgb.b - 1)); // N
+            rgb_matrix_set_color(61, 0, ecpRgb.g, ecpRgb.b); // Z
+            rgb_matrix_set_color(62, (ecpRgb.r / 16) * 16, ecpRgb.g, ecpRgb.b); // X
+            rgb_matrix_set_color(63, ecpRgb.r, 0, ecpRgb.b); // C
+            rgb_matrix_set_color(64, ecpRgb.r, (ecpRgb.g / 16) * 16, ecpRgb.b); // V
+            rgb_matrix_set_color(65, ecpRgb.r, ecpRgb.g, 0); // B
+            rgb_matrix_set_color(66, ecpRgb.r, ecpRgb.g, (ecpRgb.b / 16) * 16); // N
 
             rgb_matrix_set_color(58, RGB_WHITE); // ENTER
 
