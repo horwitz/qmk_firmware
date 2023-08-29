@@ -76,7 +76,7 @@
  */
 
 // [DEBUG]
-#define DEBUG 1//0
+#define DEBUG 0//1
 
 #include QMK_KEYBOARD_H
 #include <math.h> // for round() // [CPICK]
