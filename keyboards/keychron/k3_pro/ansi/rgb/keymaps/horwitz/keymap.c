@@ -85,6 +85,7 @@
     #include "print.h"
 #endif
 
+// [ECP]
 // TODO(?) use macros instead of a function (for bound)
 /*
 #define min(a,b) \
@@ -144,10 +145,10 @@ enum ctrl_keycodes {
         RHD, RLD, GHD, GLD, BHD, BLD,
         ECPSET
 };
-int MIN_COLOR_KEYCODE = COLOR00;
-int MAX_COLOR_KEYCODE = COLOR47;
-int MIN_ECP_CHANGE_KEYCODE = RHI;
-int MAX_ECP_CHANGE_KEYCODE = ECPSET;
+int MIN_COLOR_KEYCODE = COLOR00; // [CPICK]
+int MAX_COLOR_KEYCODE = COLOR47; // [CPICK]
+int MIN_ECP_CHANGE_KEYCODE = RHI; // [ECP]
+int MAX_ECP_CHANGE_KEYCODE = ECPSET; // [ECP]
 
 // [SUS-RGB]
 void suspend_power_down_user(void) {
@@ -173,7 +174,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TRNS,  BT_HST1,  BT_HST2,  BT_HST3,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      KC_TRNS,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,            KC_TRNS,
-     KC_TRNS,            KC_TRNS,  KC_TRNS,  TOECP,  OSL(CLR_PKR),BAT_LVL, NK_TOGG,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,  // [ECP] ("TO(ECP)") // [CPICK] ("OSL(CLR_PKR)")
+     KC_TRNS,            KC_TRNS,  KC_TRNS,  TOECP,  OSL(CLR_PKR),BAT_LVL, NK_TOGG,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,  // [ECP] ("TOECP") // [CPICK] ("OSL(CLR_PKR)")
      KC_TRNS,  KC_TRNS,  KC_TRNS,                                KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [WIN_BASE] = LAYOUT_ansi_84(
@@ -189,7 +190,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TRNS,  BT_HST1,  BT_HST2,  BT_HST3,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      KC_TRNS,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,            KC_TRNS,
-     KC_TRNS,            KC_TRNS,  KC_TRNS,  TOECP,  OSL(CLR_PKR),BAT_LVL, NK_TOGG,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,  // [ECP] ("TO(ECP)") // [CPICK] ("OSL(CLR_PKR)")
+     KC_TRNS,            KC_TRNS,  KC_TRNS,  TOECP,  OSL(CLR_PKR),BAT_LVL, NK_TOGG,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,  // [ECP] ("TOECP") // [CPICK] ("OSL(CLR_PKR)")
      KC_TRNS,  KC_TRNS,  KC_TRNS,                                KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 // [CPICK]
@@ -504,6 +505,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 //            uprintf("iib: %2u\n", index_in_byte);
         }
         retval = false;
+    // [ECP]
     } else if (keycode == TOECP) {
         ecpRgb = hsv_to_rgb(rgb_matrix_get_hsv());
 //        uprintf("setting ecpRgb: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
