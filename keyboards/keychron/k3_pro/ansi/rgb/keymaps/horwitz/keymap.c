@@ -434,62 +434,60 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             // if RLI, ++(ecpRgb.r), index_in_byte = ecpRgb.r % 16
             // ...
             // if BLD, --(ecpRgb.b), index_in_byte = ecpRgb.b % 16
-            RGB rgb_new = ecpRgb; // TODO is this variable redundant?
             switch (keycode) {
                 case RHI:
 //                    uprintf("RHI\n");
 //                    uprintf("max(-1,0)=%u, max(3,0)=%u, min(256,255)=%u, min(2,255)=%u\n\n", max(-1,0), max(3,0), min(256,255), min(2,255));
 //                    uprintf("bound(255+16): %2u\n", bound(255+16));
-                    rgb_new.r = bound(ecpRgb.r + 16);
-//                    uprintf("ecpRgb.r: %2u / rgb_new.r: %2u\n", rgecpRgbb.r, rgb_new.r);
-                    index_in_byte = rgb_new.r / 16;
+                    ecpRgb.r = bound(ecpRgb.r + 16);
+                    index_in_byte = ecpRgb.r / 16;
                     break;
                 case RHD:
 //                    uprintf("RHD\n");
-                    rgb_new.r = bound(ecpRgb.r - 16);
-                    index_in_byte = rgb_new.r / 16;
+                    ecpRgb.r = bound(ecpRgb.r - 16);
+                    index_in_byte = ecpRgb.r / 16;
                     break;
                 case RLI:
 //                    uprintf("RLI\n");
-                    rgb_new.r = bound(ecpRgb.r + 1);
-                    index_in_byte = rgb_new.r % 16;
+                    ecpRgb.r = bound(ecpRgb.r + 1);
+                    index_in_byte = ecpRgb.r % 16;
                     break;
                 case RLD:
 //                    uprintf("RLD\n");
-                    rgb_new.r = bound(ecpRgb.r - 1);
-                    index_in_byte = rgb_new.r % 16;
+                    ecpRgb.r = bound(ecpRgb.r - 1);
+                    index_in_byte = ecpRgb.r % 16;
                     break;
                 case GHI:
-                    rgb_new.g = bound(ecpRgb.g + 16);
-                    index_in_byte = rgb_new.g / 16;
+                    ecpRgb.g = bound(ecpRgb.g + 16);
+                    index_in_byte = ecpRgb.g / 16;
                     break;
                 case GHD:
-                    rgb_new.g = bound(ecpRgb.g - 16);
-                    index_in_byte = rgb_new.g / 16;
+                    ecpRgb.g = bound(ecpRgb.g - 16);
+                    index_in_byte = ecpRgb.g / 16;
                     break;
                 case GLI:
-                    rgb_new.g = bound(ecpRgb.g + 1);
-                    index_in_byte = rgb_new.g % 16;
+                    ecpRgb.g = bound(ecpRgb.g + 1);
+                    index_in_byte = ecpRgb.g % 16;
                     break;
                 case GLD:
-                    rgb_new.g = bound(ecpRgb.g - 1);
-                    index_in_byte = rgb_new.g % 16;
+                    ecpRgb.g = bound(ecpRgb.g - 1);
+                    index_in_byte = ecpRgb.g % 16;
                     break;
                 case BHI:
-                    rgb_new.b = bound(ecpRgb.b + 16);
-                    index_in_byte = rgb_new.b / 16;
+                    ecpRgb.b = bound(ecpRgb.b + 16);
+                    index_in_byte = ecpRgb.b / 16;
                     break;
                 case BHD:
-                    rgb_new.b = bound(ecpRgb.b - 16);
-                    index_in_byte = rgb_new.b / 16;
+                    ecpRgb.b = bound(ecpRgb.b - 16);
+                    index_in_byte = ecpRgb.b / 16;
                     break;
                 case BLI:
-                    rgb_new.b = bound(ecpRgb.b + 1);
-                    index_in_byte = rgb_new.b % 16;
+                    ecpRgb.b = bound(ecpRgb.b + 1);
+                    index_in_byte = ecpRgb.b % 16;
                     break;
                 case BLD:
-                    rgb_new.b = bound(ecpRgb.b - 1);
-                    index_in_byte = rgb_new.b % 16;
+                    ecpRgb.b = bound(ecpRgb.b - 1);
+                    index_in_byte = ecpRgb.b % 16;
                     break;
                 case ECPSET:
                     rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
@@ -502,9 +500,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     // TODO? throw exception
                     break;
             }
-//            uprintf("<< rgb_new: (%2u,%2u,%2u)\n", rgb_new.r, rgb_new.g, rgb_new.b);
+//            uprintf("<< ecpRgb: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
 //            uprintf("iib: %2u\n", index_in_byte);
-            ecpRgb = rgb_new; // TODO do we need ecpRgb and rgb_new ?
         }
         retval = false;
     } else if (keycode == TOECP) {
@@ -578,6 +575,8 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         case ECP: {
             // set A,S to R level; D,F to G level; G,H to B level; set ENTER white; set all else black
             rgb_matrix_set_color_all(RGB_BLACK); // set keys not changed below to black
+            // ESC currently used for top-row 0-15 readout instead of signifying that it's the abort key (by coloring it
+            // red, e.g.)
 //            rgb_matrix_set_color(0, RGB_RED); // ESC red // TODO? different color here
 //            uprintf("R (AS): %2u / G (DF): %2u / B (GH): %2u\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
 
