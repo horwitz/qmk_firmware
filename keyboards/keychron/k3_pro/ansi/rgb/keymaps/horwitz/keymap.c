@@ -19,6 +19,8 @@
  * (1) Debugging
  * (2) Highlighting used fn-layer keys
  * (3) Color picking
+ * (4) Suspend RGB
+ * (5) Enhanced color picking
  *
  * (1) SHORT NAME*: [DEBUG]
  *     DETAILS: When enabled, outputs the result of `uprintf` statements--these can be seen in the QMK Toolbox console.
@@ -42,8 +44,24 @@
  *     NOTE: The feature creates a fifth layer (layer 4) for the rainbow grid (meant only to be accessed for the
  *           purposes mentioned above in DETAILS). Actual hue values are encoded as integers in [0,256) (scaled from
  *           [0,1)).
+ *
  * (4) SHORT NAME: [SUS-RGB]
  *     DETAILS: Turns off lighting when the laptop sleeps (and for similar(?) behavior).
+ *     TO ACTIVATE: The feature is always on.
+ *
+ * (5) SHORT NAME: [ECP]
+ *     DETAILS: Used to set the base layer to a solid pattern of any 24-bit color. The picker's current color is shown
+ *              on each key of the 3x3 grid  IOP KL; ,./  as well as Enter. Hitting Enter accepts the current color,
+ *              setting the base layer to a solid pattern of that color. Hitting Esc aborts, making no change in the
+ *              base layer's color. A & S show the red contribution (the two highest bytes in the 6-byte RBG
+ *              representation; note that A and S's colors are the same), D & F show the green contribution, and G & H
+ *              show the blue contribution. Q increases the red contribution by 16 and W increases it by 1--in both
+ *              cases stopping at the max of 255. Similarly Z and X respectively lower the red contribution by 16 and 1,
+ *              stopping at the min of 0. Similarly E,R,C,V raise/lower green by 16 or 1; T,Y,B,N raise/lower blue by 16
+ *              or 1. When any of QWERTYZXCVBN is pressed, the 16 top-row characters (Esc, F1, F2, ...) light up to show
+ *              the current modifier's value, in { 0, 1, ..., 15 }: e.g., if Q is pressed and red's high byte is at 5,
+ *              it will go up to 6 and the first 7 keys in the top row (Esc, F1, ..., F6) will light up. 1 light
+ *              represents a 0, 2 lights represent a 1, ..., all 16 lights represent a 15.
  *     TO ACTIVATE: The feature is always on.
  *
  * * notation just for documentation (when a comment with the SHORT NAME is found, the code below--continuing until the
@@ -252,7 +270,7 @@ void keyboard_post_init_user(void) {
         debug_enable = true;
 //        debug_matrix = true;
 //        debug_keyboard = true;
-    //    debug_mouse = true;
+//        debug_mouse = true;
 #endif
 
     // [CPICK]
@@ -353,7 +371,6 @@ int index_in_byte = -1; // 0-15 value equal to the last hex value edited (one of
 
 // [ECP]
 // from lv_color.c
-// TODO!!! is working??
 HSV rgb_to_hsv(RGB rgb) {
     uint16_t r = ((uint32_t)(rgb.r) << 10) / 255;
     uint16_t g = ((uint32_t)(rgb.g) << 10) / 255;
@@ -396,7 +413,7 @@ HSV rgb_to_hsv(RGB rgb) {
 }
 
 // [ECP]
-RGB ecpRgb = { 128, 128, 128 }; // TODO!! do this differently--get a current state when entering ECP layer?
+RGB ecpRgb;
 
 // [CPICK]
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -410,11 +427,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // [ECP]
     } else if (is_ecp_change_keycode(keycode)) {
         if (record -> event.pressed) {
-//            // get current color
-//            RGB rgb = hsv_to_rgb(rgb_matrix_get_hsv());
 RGB rgb = ecpRgb; // TODO don't need redundant variables
-            uprintf("keycode-RHI: %2u\n", keycode - RHI);
-            uprintf(">> rgb: (%2u,%2u,%2u)\n", rgb.r, rgb.g, rgb.b);
+//            uprintf("keycode-RHI: %2u\n", keycode - RHI);
+//            uprintf(">> rgb: (%2u,%2u,%2u)\n", rgb.r, rgb.g, rgb.b);
             // if RHI, rgb.r += 16, index_in_byte = rgb.r/16
             // if RHD, rgb.r -= 16, index_in_byte = rgb.r/16
             // if RLI, ++(rgb.r), index_in_byte = rgb.r % 16
@@ -423,25 +438,25 @@ RGB rgb = ecpRgb; // TODO don't need redundant variables
             RGB rgb_new = rgb;
             switch (keycode) {
                 case RHI:
-                    uprintf("RHI\n");
+//                    uprintf("RHI\n");
 //                    uprintf("max(-1,0)=%u, max(3,0)=%u, min(256,255)=%u, min(2,255)=%u\n\n", max(-1,0), max(3,0), min(256,255), min(2,255));
-uprintf("bound(255+16): %2u\n", bound(255+16));
+//                    uprintf("bound(255+16): %2u\n", bound(255+16));
                     rgb_new.r = bound(rgb.r + 16);
-                    uprintf("rgb.r: %2u / rgb_new.r: %2u\n", rgb.r, rgb_new.r);
+//                    uprintf("rgb.r: %2u / rgb_new.r: %2u\n", rgb.r, rgb_new.r);
                     index_in_byte = rgb_new.r / 16;
                     break;
                 case RHD:
-                    uprintf("RHD\n");
+//                    uprintf("RHD\n");
                     rgb_new.r = bound(rgb.r - 16);
                     index_in_byte = rgb_new.r / 16;
                     break;
                 case RLI:
-                    uprintf("RLI\n");
+//                    uprintf("RLI\n");
                     rgb_new.r = bound(rgb.r + 1);
                     index_in_byte = rgb_new.r % 16;
                     break;
                 case RLD:
-                    uprintf("RLD\n");
+//                    uprintf("RLD\n");
                     rgb_new.r = bound(rgb.r - 1);
                     index_in_byte = rgb_new.r % 16;
                     break;
@@ -480,7 +495,7 @@ uprintf("bound(255+16): %2u\n", bound(255+16));
                 case ECPSET:
                     rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
                     HSV hsv = rgb_to_hsv(ecpRgb);
-uprintf("ECPSET: ecpRgb=(%2u,%2u,%2u) -> hsv=(%2u, %2u, %2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b, hsv.h, hsv.s, hsv.v);
+//                    uprintf("ECPSET: ecpRgb=(%2u,%2u,%2u) -> hsv=(%2u, %2u, %2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b, hsv.h, hsv.s, hsv.v);
                     rgb_matrix_sethsv(hsv.h, hsv.s, hsv.v);
                     layer_off(ECP);
                     break;
@@ -488,21 +503,16 @@ uprintf("ECPSET: ecpRgb=(%2u,%2u,%2u) -> hsv=(%2u, %2u, %2u)\n", ecpRgb.r, ecpRg
                     // TODO? throw exception
                     break;
             }
-            uprintf("<< rgb: (%2u,%2u,%2u)\n", rgb_new.r, rgb_new.g, rgb_new.b);
-            uprintf("iib: %2u\n", index_in_byte);
-            // TODO? set directly from [rgb] (i.e., use rgb_matrix_set_color_all ?) (instead of rgb_matrix_sethsv)
-            // set current color
-//            rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
-//            rgb_matrix_set_color_all(rgb_new.r, rgb_new.g, rgb_new.b);
-//            HSV hsv = rgb_to_hsv(rgb_new);
-//            rgb_matrix_sethsv(hsv.h, hsv.s, hsv.v);
+//            uprintf("<< rgb: (%2u,%2u,%2u)\n", rgb_new.r, rgb_new.g, rgb_new.b);
+//            uprintf("iib: %2u\n", index_in_byte);
             ecpRgb = rgb_new; // TODO do we need ecpRgb and rgb_new ?
         }
         retval = false;
     } else if (keycode == TOECP) {
         ecpRgb = hsv_to_rgb(rgb_matrix_get_hsv());
+//        uprintf("setting ecpRgb: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
         layer_on(ECP);
-        retval = false; // process all other keycodes normally
+        retval = false;
     } else {
         retval = true; // process all other keycodes normally
     }
@@ -567,19 +577,15 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
         // [ECP]
         case ECP: {
-//            RGB ecpRgb = hsv_to_rgb(rgb_matrix_get_hsv());
-//ecpRgb.r = 16;
-//ecpRgb.g = 128;
-//ecpRgb.b = 240;
             // set A,S to R level; D,F to G level; G,H to B level; set ENTER white; set all else black
-            rgb_matrix_set_color_all(RGB_BLACK); // set keys not changed below to black // TODO!! clean up lights... somehow when entering ECP layer
-            rgb_matrix_set_color(0, RGB_RED); // ESC red // TODO? different color here
+            rgb_matrix_set_color_all(RGB_BLACK); // set keys not changed below to black
+//            rgb_matrix_set_color(0, RGB_RED); // ESC red // TODO? different color here
 //            uprintf("R (AS): %2u / G (DF): %2u / B (GH): %2u\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
 
             rgb_matrix_set_color(32, bound(ecpRgb.r + 16), ecpRgb.g, ecpRgb.b); // Q
-//uprintf("Q: (%2u, %2u, %2u)\n", bound(ecpRgb.r + 16), ecpRgb.g, ecpRgb.b);
+//            uprintf("Q: (%2u, %2u, %2u)\n", bound(ecpRgb.r + 16), ecpRgb.g, ecpRgb.b);
             rgb_matrix_set_color(33, bound(ecpRgb.r + 1), ecpRgb.g, ecpRgb.b); // W
-//uprintf("W: (%2u, %2u, %2u)\n", bound(ecpRgb.r + 1), ecpRgb.g, ecpRgb.b);
+//            uprintf("W: (%2u, %2u, %2u)\n", bound(ecpRgb.r + 1), ecpRgb.g, ecpRgb.b);
             rgb_matrix_set_color(34, ecpRgb.r, bound(ecpRgb.g + 16), ecpRgb.b); // E
             rgb_matrix_set_color(35, ecpRgb.r, bound(ecpRgb.g + 1), ecpRgb.b); // R
             rgb_matrix_set_color(36, ecpRgb.r, ecpRgb.g, bound(ecpRgb.b + 16)); // T
@@ -603,9 +609,9 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             rgb_matrix_set_color(52, 0, 0, ecpRgb.b); // H
 
             rgb_matrix_set_color(61, bound(ecpRgb.r - 16), ecpRgb.g, ecpRgb.b); // Z
-//uprintf("Z: (%2u, %2u, %2u)\n", bound(ecpRgb.r - 16), ecpRgb.g, ecpRgb.b);
+//            uprintf("Z: (%2u, %2u, %2u)\n", bound(ecpRgb.r - 16), ecpRgb.g, ecpRgb.b);
             rgb_matrix_set_color(62, bound(ecpRgb.r - 1), ecpRgb.g, ecpRgb.b); // X
-//uprintf("X: (%2u, %2u, %2u)\n", bound(ecpRgb.r - 1), ecpRgb.g, ecpRgb.b);
+//            uprintf("X: (%2u, %2u, %2u)\n", bound(ecpRgb.r - 1), ecpRgb.g, ecpRgb.b);
             rgb_matrix_set_color(63, ecpRgb.r, bound(ecpRgb.g - 16), ecpRgb.b); // C
             rgb_matrix_set_color(64, ecpRgb.r, bound(ecpRgb.g - 1), ecpRgb.b); // V
             rgb_matrix_set_color(65, ecpRgb.r, ecpRgb.g, bound(ecpRgb.b - 16)); // B
@@ -613,9 +619,9 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
             rgb_matrix_set_color(58, RGB_WHITE); // ENTER
 
-            if (index_in_byte >= 0) {
+//            if (index_in_byte >= 0) {
 //                uprintf("setting 0-%2u to white\n", index_in_byte);
-            }
+//            }
             // if index_in_byte >= 0, color ESC (white)
             // and if index_in_byte >= 1, color F1
             // ...
