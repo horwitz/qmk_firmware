@@ -151,6 +151,16 @@ int MAX_COLOR_KEYCODE = COLOR47; // [CPICK]
 int MIN_ECP_CHANGE_KEYCODE = RHI; // [ECP]
 int MAX_ECP_CHANGE_KEYCODE = ECPSET; // [ECP]
 
+// [ECP]
+enum RGB_COLOR { RED, GREEN, BLUE };
+
+// [ECP]
+typedef struct {
+    enum RGB_COLOR color;
+    bool high; // TODO? use enum over bool
+    bool inc; // TODO? use enum over bool
+} ecp_key_t;
+
 // [SUS-RGB]
 void suspend_power_down_user(void) {
     rgb_matrix_set_suspend_state(true);
@@ -419,6 +429,72 @@ HSV rgb_to_hsv(RGB rgb) {
 // [ECP]
 RGB ecpRgb;
 
+// [ECP]
+ecp_key_t get_ecp_key(uint16_t keycode) {
+    ecp_key_t ecp_key;
+
+    switch (keycode) {
+        case RHI:
+        case RHD:
+        case RLI:
+        case RLD:
+            ecp_key.color = RED;
+            break;
+        case GHI:
+        case GHD:
+        case GLI:
+        case GLD:
+            ecp_key.color = GREEN;
+            break;
+        case BHI:
+        case BHD:
+        case BLI:
+        case BLD:
+            ecp_key.color = BLUE;
+            break;
+    }
+
+    switch (keycode) {
+        case RHI:
+        case RHD:
+        case GHI:
+        case GHD:
+        case BHI:
+        case BHD:
+            ecp_key.high = true;
+            break;
+        case RLI:
+        case RLD:
+        case GLI:
+        case GLD:
+        case BLI:
+        case BLD:
+            ecp_key.high = false;
+            break;
+    }
+
+    switch (keycode) {
+        case RHI:
+        case RLI:
+        case GHI:
+        case GLI:
+        case BHI:
+        case BLI:
+            ecp_key.inc = true;
+            break;
+        case RHD:
+        case RLD:
+        case GHD:
+        case GLD:
+        case BHD:
+        case BLD:
+            ecp_key.inc = false;
+            break;
+    }
+
+    return ecp_key;
+}
+
 // [CPICK]
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool retval = true;
@@ -431,78 +507,62 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // [ECP]
     } else if (is_ecp_change_keycode(keycode)) {
         if (record -> event.pressed) {
-//            uprintf("keycode-RHI: %2u\n", keycode - RHI);
-//            uprintf(">> ecpRgb: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
-            // if RHI, then ecpRgb.r += 16, index_in_byte = ecpRgb.r/16
-            // if RHD, then ecpRgb.r -= 16, index_in_byte = ecpRgb.r/16
-            // if RLI, then ++(ecpRgb.r), index_in_byte = ecpRgb.r % 16
-            // ...
-            // if BLD, then --(ecpRgb.b), index_in_byte = ecpRgb.b % 16
-            switch (keycode) {
-                case RHI:
-//                    uprintf("RHI\n");
-//                    uprintf("max(-1,0)=%u, max(3,0)=%u, min(256,255)=%u, min(2,255)=%u\n\n", max(-1,0), max(3,0), min(256,255), min(2,255));
-//                    uprintf("bound(255+16): %2u\n", bound(255+16));
-                    ecpRgb.r = bound(ecpRgb.r + 16);
-                    index_in_byte = ecpRgb.r / 16;
-                    break;
-                case RHD:
-//                    uprintf("RHD\n");
-                    ecpRgb.r = bound(ecpRgb.r - 16);
-                    index_in_byte = ecpRgb.r / 16;
-                    break;
-                case RLI:
-//                    uprintf("RLI\n");
-                    ecpRgb.r = bound(ecpRgb.r + 1);
-                    index_in_byte = ecpRgb.r % 16;
-                    break;
-                case RLD:
-//                    uprintf("RLD\n");
-                    ecpRgb.r = bound(ecpRgb.r - 1);
-                    index_in_byte = ecpRgb.r % 16;
-                    break;
-                case GHI:
-                    ecpRgb.g = bound(ecpRgb.g + 16);
-                    index_in_byte = ecpRgb.g / 16;
-                    break;
-                case GHD:
-                    ecpRgb.g = bound(ecpRgb.g - 16);
-                    index_in_byte = ecpRgb.g / 16;
-                    break;
-                case GLI:
-                    ecpRgb.g = bound(ecpRgb.g + 1);
-                    index_in_byte = ecpRgb.g % 16;
-                    break;
-                case GLD:
-                    ecpRgb.g = bound(ecpRgb.g - 1);
-                    index_in_byte = ecpRgb.g % 16;
-                    break;
-                case BHI:
-                    ecpRgb.b = bound(ecpRgb.b + 16);
-                    index_in_byte = ecpRgb.b / 16;
-                    break;
-                case BHD:
-                    ecpRgb.b = bound(ecpRgb.b - 16);
-                    index_in_byte = ecpRgb.b / 16;
-                    break;
-                case BLI:
-                    ecpRgb.b = bound(ecpRgb.b + 1);
-                    index_in_byte = ecpRgb.b % 16;
-                    break;
-                case BLD:
-                    ecpRgb.b = bound(ecpRgb.b - 1);
-                    index_in_byte = ecpRgb.b % 16;
-                    break;
-                case ECPSET:
-                    rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
-                    HSV hsv = rgb_to_hsv(ecpRgb);
-//                    uprintf("ECPSET: ecpRgb=(%2u,%2u,%2u) -> hsv=(%2u, %2u, %2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b, hsv.h, hsv.s, hsv.v);
-                    rgb_matrix_sethsv(hsv.h, hsv.s, hsv.v);
-                    layer_off(ECP);
-                    break;
-                default:
-                    // TODO? throw exception
-                    break;
+            if (keycode == ECPSET) {
+                rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
+                HSV hsv = rgb_to_hsv(ecpRgb);
+//                uprintf("ECPSET: ecpRgb=(%2u,%2u,%2u) -> hsv=(%2u, %2u, %2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b, hsv.h, hsv.s, hsv.v);
+                rgb_matrix_sethsv(hsv.h, hsv.s, hsv.v);
+                layer_off(ECP);
+            } else {
+//                uprintf("keycode-RHI: %2u\n", keycode - RHI);
+//                uprintf(">> ecpRgb: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
+                // if RHI, then ecpRgb.r += 16, index_in_byte = ecpRgb.r/16
+                // if RHD, then ecpRgb.r -= 16, index_in_byte = ecpRgb.r/16
+                // if RLI, then ++(ecpRgb.r), index_in_byte = ecpRgb.r % 16
+                // ...
+                // if BLD, then --(ecpRgb.b), index_in_byte = ecpRgb.b % 16
+                // TODO! is int16_t the right type?
+                // TODO? don't initialize?
+                int16_t component = -1; // whichever of ecpRgb.r, .g, or .b is going to change
+
+                ecp_key_t ecp_key = get_ecp_key(keycode);
+
+                switch (ecp_key.color) {
+                    case RED:
+                        component = ecpRgb.r;
+                        break;
+                    case GREEN:
+                        component = ecpRgb.g;
+                        break;
+                    case BLUE:
+                        component = ecpRgb.b;
+                        break;
+                }
+
+                int absDelta = ecp_key.high ? 16 : 1;
+                int delta = ecp_key.inc ? absDelta : -absDelta;
+                component = bound(component + delta);
+
+                if (ecp_key.high) {
+                    index_in_byte = component / 16;
+                } else {
+                    index_in_byte = component % 16;
+                }
+
+//uprintf("before: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
+                switch (ecp_key.color) {
+                    case RED:
+                        ecpRgb.r = component;
+                        break;
+                    case GREEN:
+                        ecpRgb.g = component;
+                        break;
+                    case BLUE:
+                        ecpRgb.b = component;
+                        break;
+                }
+//uprintf("after: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
+
             }
 //            uprintf("<< ecpRgb: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
 //            uprintf("iib: %2u\n", index_in_byte);
