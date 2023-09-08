@@ -207,7 +207,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // [CPICK]
 [CLR_PKR] = LAYOUT_ansi_84(
      // TODO go back to WIN_BASE (instead of MAC_BASE) as appropriate
-     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,TG(MAC_BASE),
+     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_NO,
      COLOR00,  COLOR04,  COLOR08,  COLOR12,  COLOR16,  COLOR20,  COLOR24,  COLOR28,  COLOR32,  COLOR36,  COLOR40,  COLOR44,  _______,  _______,            _______,
      COLOR01,  COLOR05,  COLOR09,  COLOR13,  COLOR17,  COLOR21,  COLOR25,  COLOR29,  COLOR33,  COLOR37,  COLOR41,  COLOR45,  _______,  _______,            _______,
      COLOR02,  COLOR06,  COLOR10,  COLOR14,  COLOR18,  COLOR22,  COLOR26,  COLOR30,  COLOR34,  COLOR38,  COLOR42,  COLOR46,            _______,            _______,
@@ -581,8 +581,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return retval;
 }
 
+//uint8_t last_layer = -1;
+
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     uint8_t layer = biton32(layer_state);
+
+//    if (layer != last_layer) {
+//        uprintf("layer: %d\n", layer);
+//        last_layer = layer;
+//    }
 
     switch (layer) {
         case MAC_BASE:
