@@ -93,7 +93,10 @@
 #endif
 
 // [ECP]
-// TODO(?) use macros instead of a function (for bound)
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+// TODO(?) use (a not-broken version of) these macros instead of the macros above
+//         (see https://stackoverflow.com/a/3437484)
 /*
 #define min(a,b) \
     ({ __typeof__ (a) _a = (a); \
@@ -103,20 +106,11 @@
     ({ __typeof__ (a) _a = (a); \
         __typeof__ (b) _b = (b); \
     _a > _b ? _a : _b; })
+*/
 // if a is in [0, 255], returns a; if a < 0, return 0; if a > 255, return 255
 #define bound(a) \
     ({ __typeof__ (a) _a = (a); \
     max(min(_a, 255), 0); })
-*/
-int bound(int a) {
-    if (a < 0) {
-        return 0;
-    } else if (a > 255) {
-        return 255;
-    } else {
-        return a;
-    }
-}
 
 // clang-format off
 enum layers {
