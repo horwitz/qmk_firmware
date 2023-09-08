@@ -389,8 +389,8 @@ HSV rgb_to_hsv(RGB rgb) {
     uint16_t r = ((uint32_t)(rgb.r) << 10) / 255;
     uint16_t g = ((uint32_t)(rgb.g) << 10) / 255;
     uint16_t b = ((uint32_t)(rgb.b) << 10) / 255;
-    uint16_t rgbMin = r < g ? (r < b ? r : b) : (g < b ? g : b);
-    uint16_t rgbMax = r > g ? (r > b ? r : b) : (g > b ? g : b);
+    uint16_t rgbMin = min(r, min(g, b));
+    uint16_t rgbMax = max(r, max(g, b));
     HSV hsv;
     // https://en.wikipedia.org/wiki/HSL_and_HSV#Lightness
     hsv.v = (255 * rgbMax) >> 10;
