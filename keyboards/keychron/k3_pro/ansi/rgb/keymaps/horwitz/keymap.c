@@ -79,7 +79,7 @@
  * † main(?) color
  * ‡ or is it the layer from which one came (e.g., starting at a base layer of 2, will these be complementary to layer
  *     2's color†)?
- * § Esc is set to RGB_RED and, when hit, leaves the layer, making to change to the base layer's color
+ * § RGB_MOD is set to RGB_RED and, when hit, leaves the layer, making no change to the base layer's color
  */
 
 // [DEBUG]
@@ -207,7 +207,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // [CPICK]
 [CLR_PKR] = LAYOUT_ansi_84(
      // TODO go back to WIN_BASE (instead of MAC_BASE) as appropriate
-     TG(MAC_BASE),_______,_______, _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
+     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,TG(MAC_BASE),
      COLOR00,  COLOR04,  COLOR08,  COLOR12,  COLOR16,  COLOR20,  COLOR24,  COLOR28,  COLOR32,  COLOR36,  COLOR40,  COLOR44,  _______,  _______,            _______,
      COLOR01,  COLOR05,  COLOR09,  COLOR13,  COLOR17,  COLOR21,  COLOR25,  COLOR29,  COLOR33,  COLOR37,  COLOR41,  COLOR45,  _______,  _______,            _______,
      COLOR02,  COLOR06,  COLOR10,  COLOR14,  COLOR18,  COLOR22,  COLOR26,  COLOR30,  COLOR34,  COLOR38,  COLOR42,  COLOR46,            _______,            _______,
@@ -624,7 +624,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         // [CPICK]
         case CLR_PKR: {
             rgb_matrix_set_color_all(RGB_BLACK); // set keys not changed below to black
-            rgb_matrix_set_color(0, RGB_RED); // ESC red // TODO? different color here
+            rgb_matrix_set_color(15, RGB_RED); // RGB_MOD red // TODO? different color here
             // TODO? allow picking white and/or black
 
             // [CPICK]
@@ -643,7 +643,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             rgb_matrix_set_color_all(RGB_BLACK); // set keys not changed below to black
             // ESC currently used for top-row 0-15 readout instead of signifying that it's the abort key (by coloring it
             // red, e.g.)
-//            rgb_matrix_set_color(0, RGB_RED); // ESC red // TODO? different color here
+//            rgb_matrix_set_color(15, RGB_RED); // RGB_MOD red // TODO? different color here
 //            uprintf("R (AS): %2u / G (DF): %2u / B (GH): %2u\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
 
             rgb_matrix_set_color(32, 255, ecpRgb.g, ecpRgb.b); // Q
