@@ -383,7 +383,7 @@ bool is_ecp_change_keycode(uint16_t keycode) {
 int index_in_byte = -1; // 0-15 value equal to the last hex value edited (one of RH, RL, GH, GL, BH, BL)
 
 // [ECP]
-// from lv_color.c (adapted to [0-255]x[0-255]x[0-255] -> [0-255]x[0-255]x[0-255]
+// from lv_color.c (adapted to [0-255]x[0-255]x[0-255] -> [0-255]x[0-255]x[0-255])
 // TODO! is this right?
 HSV rgb_to_hsv(RGB rgb) {
     uint16_t r = ((uint32_t)(rgb.r) << 10) / 255;
@@ -510,7 +510,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (keycode == ECPSET) {
                 rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
                 HSV hsv = rgb_to_hsv(ecpRgb);
-//                uprintf("ECPSET: ecpRgb=(%2u,%2u,%2u) -> hsv=(%2u, %2u, %2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b, hsv.h, hsv.s, hsv.v);
+//                uprintf("ECPSET: ecpRgb=(%d,%d,%d) -> hsv=(%d,%d,%d)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b, hsv.h, hsv.s, hsv.v);
                 rgb_matrix_sethsv(hsv.h, hsv.s, hsv.v);
                 layer_off(ECP);
             } else {
@@ -571,7 +571,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // [ECP]
     } else if (keycode == TOECP) {
         ecpRgb = hsv_to_rgb(rgb_matrix_get_hsv());
-//        uprintf("setting ecpRgb: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
+//        uprintf("setting ecpRgb: (%d,%d,%d)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
         layer_on(ECP);
         retval = false;
     } else {
