@@ -24,8 +24,8 @@
  *
  * (1) SHORT NAME*: [DEBUG]
  *     DETAILS: When enabled, outputs the result of `uprintf` statements--these can be seen in the QMK Toolbox console.
- *     TO ACTIVATE: To debug, set `DEBUG` to 1 (as opposed to 0) and make sure that (horwitz/)rules.mk contains
- *                 `CONSOLE_ENABLE = yes`; then use (e.g.) `uprintf` to print debug output.
+ *     TO ACTIVATE: To debug, set `DEBUG` to true and make sure that (horwitz/)rules.mk contains `CONSOLE_ENABLE = yes`;
+ *                  then use (e.g.) `uprintf` to print debug output.
  *
  * (2) SHORT NAME: [FN-HI]
  *     DETAILS: When the `fn` key is pressed, the keys with new keycodes (i.e., not `_______`) will light up in the
@@ -86,7 +86,7 @@
  */
 
 // [DEBUG]
-#define DEBUG 0//1
+#define DEBUG false
 
 #include QMK_KEYBOARD_H
 #include <math.h> // for round() // [CPICK]
