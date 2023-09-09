@@ -42,8 +42,8 @@
  *              across, increase in hue by approximately 1/48 (in a range of [0,1)) (w/(HSV) saturation and value both
  *              of 1 (in [0,1])). The grayscale keys, left to right, produce an HSV value from 0 to 1 (in a range of
  *              [0,1]) (w/(HSV) hue and saturation both of 0 (in [0,1) and [0,1], respectively)).
- *     TO ACTIVATE: The feature is always on; grayscale mode is usable exactly when CPICK_OFFER_GRAYSCALE is set to
-                    true.
+ *     TO ACTIVATE: The feature is always on; grayscale mode if off by default--its availability is toggled by double
+ *                  tapping X while holding Fn.
  *     NOTE: The feature creates a fifth layer (layer 4) for the rainbow grid (meant only to be accessed for the
  *           purposes mentioned above in DETAILS). Actual hue values are encoded as integers in [0,255] (scaled from
  *           [0,1)).
@@ -95,9 +95,6 @@
     #include "print.h"
 #endif
 
-// [CPICK]
-#define CPICK_OFFER_GRAYSCALE true
-
 // [ECP]
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
@@ -126,6 +123,29 @@ enum layers {
     WIN_FN,
     CLR_PKR, // [CPICK]
     ECP // [ECP]
+};
+
+// [CPICK]
+// Tap Dance declarations
+enum {
+    TD_GRAY
+};
+
+// [CPICK]
+bool cPickGrayscaleAvailable = false;
+
+// [CPICK]
+void dance_grayscale(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 2) {
+        cPickGrayscaleAvailable = !cPickGrayscaleAvailable;
+    }
+}
+
+// [CPICK]
+// Tap Dance definitions
+tap_dance_action_t tap_dance_actions[] = {
+    // Tap twice to toggle grayscale availability
+    [TD_GRAY] = ACTION_TAP_DANCE_FN(dance_grayscale)
 };
 
 // [CPICK]
@@ -199,7 +219,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      _______,  BT_HST1,  BT_HST2,  BT_HST3,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
      RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
      _______,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  _______,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
-     _______,            _______,  _______,  TOECP,  OSL(CLR_PKR),BAT_LVL, NK_TOGG,  _______,  _______,  _______,  _______,            _______,  _______,  _______,  // [ECP] ("TOECP") // [CPICK] ("OSL(CLR_PKR)")
+     _______,            _______, TD(TD_GRAY),TOECP, OSL(CLR_PKR),BAT_LVL, NK_TOGG,  _______,  _______,  _______,  _______,            _______,  _______,  _______,  // [ECP] ("TOECP") // [CPICK] ("OSL(CLR_PKR)")
      _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
 
 [WIN_BASE] = LAYOUT_ansi_84(
@@ -221,11 +241,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // [CPICK]
 [CLR_PKR] = LAYOUT_ansi_84(
      // TODO go back to WIN_BASE (instead of MAC_BASE) as appropriate
-#if CPICK_OFFER_GRAYSCALE
      GRAY00,   GRAY01,   GRAY02,   GRAY03,   GRAY04,   GRAY05,   GRAY06,   GRAY07,   GRAY08,   GRAY09,   GRAY10,   GRAY11,   XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, // keycode 15 is lit RED, though pressing any XXXXXXX aborts color choosing
-#else
-     XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, // keycode 15 is lit RED, though pressing any XXXXXXX aborts color choosing
-#endif
      COLOR00,  COLOR04,  COLOR08,  COLOR12,  COLOR16,  COLOR20,  COLOR24,  COLOR28,  COLOR32,  COLOR36,  COLOR40,  COLOR44,  XXXXXXX,  XXXXXXX,            XXXXXXX,
      COLOR01,  COLOR05,  COLOR09,  COLOR13,  COLOR17,  COLOR21,  COLOR25,  COLOR29,  COLOR33,  COLOR37,  COLOR41,  COLOR45,  XXXXXXX,  XXXXXXX,            XXXXXXX,
      COLOR02,  COLOR06,  COLOR10,  COLOR14,  COLOR18,  COLOR22,  COLOR26,  COLOR30,  COLOR34,  COLOR38,  COLOR42,  COLOR46,            XXXXXXX,            XXXXXXX,
@@ -553,7 +569,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     rgb_matrix_sethsv(color_picker_color_hues[get_color_picker_color_keycode_index(keycode)], 255, 255);
                     break;
                 case GRAY_SCHEME:
-                    rgb_matrix_sethsv(0, 0, color_picker_gray_intensities[get_color_picker_gray_keycode_index(keycode)]);
+                    if (cPickGrayscaleAvailable) {
+                        rgb_matrix_sethsv(0, 0, color_picker_gray_intensities[get_color_picker_gray_keycode_index(keycode)]);
+                    }
                     break;
             }
         }
@@ -702,13 +720,12 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                 RGB rgb = color_picker_color_rgbs[i];
                 rgb_matrix_set_color(color_picker_color_palette_keycodes[i], rgb.r, rgb.g, rgb.b);
             }
-#if CPICK_OFFER_GRAYSCALE
-            for (int i = 0; i < GRAY_PALETTE_SIZE; ++i) {
-                int intensity = color_picker_gray_intensities[i];
-                rgb_matrix_set_color(color_picker_gray_palette_keycodes[i], intensity, intensity, intensity);
+            if (cPickGrayscaleAvailable) {
+                for (int i = 0; i < GRAY_PALETTE_SIZE; ++i) {
+                    int intensity = color_picker_gray_intensities[i];
+                    rgb_matrix_set_color(color_picker_gray_palette_keycodes[i], intensity, intensity, intensity);
+                }
             }
-#endif
-
             break;
         }
 
