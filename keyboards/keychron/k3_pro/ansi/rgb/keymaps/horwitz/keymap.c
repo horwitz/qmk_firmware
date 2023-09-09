@@ -153,12 +153,14 @@ int MAX_ECP_CHANGE_KEYCODE = ECPSET; // [ECP]
 
 // [ECP]
 enum RGB_COLOR { RED, GREEN, BLUE };
+enum NIBBLE_LEVEL { HIGH, LOW };
+enum DELTA_DIR { INC, DEC };
 
 // [ECP]
 typedef struct {
     enum RGB_COLOR color;
-    bool high; // TODO? use enum over bool
-    bool inc; // TODO? use enum over bool
+    enum NIBBLE_LEVEL nibbleLevel;
+    enum DELTA_DIR deltaDir;
 } ecp_key_t;
 
 // [SUS-RGB]
@@ -461,7 +463,7 @@ ecp_key_t get_ecp_key(uint16_t keycode) {
         case GHD:
         case BHI:
         case BHD:
-            ecp_key.high = true;
+            ecp_key.nibbleLevel = HIGH;
             break;
         case RLI:
         case RLD:
@@ -469,7 +471,7 @@ ecp_key_t get_ecp_key(uint16_t keycode) {
         case GLD:
         case BLI:
         case BLD:
-            ecp_key.high = false;
+            ecp_key.nibbleLevel = LOW;
             break;
     }
 
@@ -480,7 +482,7 @@ ecp_key_t get_ecp_key(uint16_t keycode) {
         case GLI:
         case BHI:
         case BLI:
-            ecp_key.inc = true;
+            ecp_key.deltaDir = INC;
             break;
         case RHD:
         case RLD:
@@ -488,7 +490,7 @@ ecp_key_t get_ecp_key(uint16_t keycode) {
         case GLD:
         case BHD:
         case BLD:
-            ecp_key.inc = false;
+            ecp_key.deltaDir = DEC;
             break;
     }
 
@@ -539,14 +541,33 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                         break;
                 }
 
-                int absDelta = ecp_key.high ? 16 : 1;
-                int delta = ecp_key.inc ? absDelta : -absDelta;
+                int absDelta = -1;
+                 switch (ecp_key.nibbleLevel) {
+                     case HIGH:
+                         absDelta = 16;
+                         break;
+                     case LOW:
+                         absDelta = 1;
+                         break;
+                }
+                int delta = -1;
+                switch (ecp_key.deltaDir) {
+                    case INC:
+                        delta = absDelta;
+                        break;
+                    case DEC:
+                        delta = -absDelta;
+                        break;
+                }
                 component = bound(component + delta);
 
-                if (ecp_key.high) {
-                    index_in_byte = component / 16;
-                } else {
-                    index_in_byte = component % 16;
+                switch (ecp_key.nibbleLevel) {
+                    case HIGH:
+                        index_in_byte = component / 16;
+                        break;
+                    case LOW:
+                        index_in_byte = component % 16;
+                        break;
                 }
 
 //uprintf("before: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
