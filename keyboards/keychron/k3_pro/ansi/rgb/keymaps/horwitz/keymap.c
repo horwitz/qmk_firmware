@@ -42,7 +42,8 @@
  *              across, increase in hue by approximately 1/48 (in a range of [0,1)) (w/(HSV) saturation and value both
  *              of 1 (in [0,1])). The grayscale keys, left to right, produce an HSV value from 0 to 1 (in a range of
  *              [0,1]) (w/(HSV) hue and saturation both of 0 (in [0,1) and [0,1], respectively)).
- *     TO ACTIVATE: The feature is always on.
+ *     TO ACTIVATE: The feature is always on; grayscale mode is usable exactly when CPICK_OFFER_GRAYSCALE is set to
+                    true.
  *     NOTE: The feature creates a fifth layer (layer 4) for the rainbow grid (meant only to be accessed for the
  *           purposes mentioned above in DETAILS). Actual hue values are encoded as integers in [0,256) (scaled from
  *           [0,1)).
@@ -93,6 +94,9 @@
 #if DEBUG
     #include "print.h"
 #endif
+
+// [CPICK]
+#define CPICK_OFFER_GRAYSCALE true
 
 // [ECP]
 #define min(a,b) (((a) < (b)) ? (a) : (b))
@@ -217,7 +221,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // [CPICK]
 [CLR_PKR] = LAYOUT_ansi_84(
      // TODO go back to WIN_BASE (instead of MAC_BASE) as appropriate
+#if CPICK_OFFER_GRAYSCALE
      GRAY00,   GRAY01,   GRAY02,   GRAY03,   GRAY04,   GRAY05,   GRAY06,   GRAY07,   GRAY08,   GRAY09,   GRAY10,   GRAY11,   XXXXXXX,  XXXXXXX,  XXXXXXX,  KC_NO,
+#else
+     XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  KC_NO,
+#endif
      COLOR00,  COLOR04,  COLOR08,  COLOR12,  COLOR16,  COLOR20,  COLOR24,  COLOR28,  COLOR32,  COLOR36,  COLOR40,  COLOR44,  XXXXXXX,  XXXXXXX,            XXXXXXX,
      COLOR01,  COLOR05,  COLOR09,  COLOR13,  COLOR17,  COLOR21,  COLOR25,  COLOR29,  COLOR33,  COLOR37,  COLOR41,  COLOR45,  XXXXXXX,  XXXXXXX,            XXXXXXX,
      COLOR02,  COLOR06,  COLOR10,  COLOR14,  COLOR18,  COLOR22,  COLOR26,  COLOR30,  COLOR34,  COLOR38,  COLOR42,  COLOR46,            XXXXXXX,            XXXXXXX,
@@ -713,10 +721,12 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                 RGB rgb = color_picker_color_rgbs[i];
                 rgb_matrix_set_color(color_picker_color_palette_keycodes[i], rgb.r, rgb.g, rgb.b);
             }
+#if CPICK_OFFER_GRAYSCALE
             for (int i = 0; i < GRAY_PALETTE_SIZE; ++i) {
                 int intensity = color_picker_gray_intensities[i];
                 rgb_matrix_set_color(color_picker_gray_palette_keycodes[i], intensity, intensity, intensity);
             }
+#endif
 
             break;
         }
