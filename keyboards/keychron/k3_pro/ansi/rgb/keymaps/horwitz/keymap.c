@@ -45,7 +45,7 @@
  *     TO ACTIVATE: The feature is always on; grayscale mode is usable exactly when CPICK_OFFER_GRAYSCALE is set to
                     true.
  *     NOTE: The feature creates a fifth layer (layer 4) for the rainbow grid (meant only to be accessed for the
- *           purposes mentioned above in DETAILS). Actual hue values are encoded as integers in [0,256) (scaled from
+ *           purposes mentioned above in DETAILS). Actual hue values are encoded as integers in [0,255] (scaled from
  *           [0,1)).
  *
  * (4) SHORT NAME: [SUS-RGB]
@@ -314,8 +314,9 @@ void keyboard_post_init_user(void) {
     192, 197, 203, 208, 213, 219, 224, 229, 235, 240, 245, 251
     */
     for (int i = 0; i < COLOR_PALETTE_SIZE; ++i) {
+        // NB: requires COLOR_PALETTE_SIZE < 512 or rvalue for largest i will be 256 (and hues must fall in [0,255])
         color_picker_color_hues[i] = round(i * 256.0 / COLOR_PALETTE_SIZE);
-        HSV hsv = { color_picker_color_hues[i], 255, 255 };
+        HSV hsv = { .h=color_picker_color_hues[i], .s=255, .v=255 };
         color_picker_color_rgbs[i] = hsv_to_rgb_nocie(hsv);
     }
     for (int i = 0; i < GRAY_PALETTE_SIZE; ++i) {
@@ -677,20 +678,9 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             RGB rgb = hsv_to_rgb_nocie(rgb_matrix_get_hsv());
             // TODO what exactly _is_ the color returned by rgb_matrix_get_hsv()? is this some overall color (as opposed
             //      to per-key ones)?
-            RGB complement_rgb;
-            /*
-             TODO? construct complement_rgb in a simpler / more-elegant fashion (e.g., a one-liner)--but
-            "RGB complement_rgb = { 255 - rgb.r, 255 - rgb.g, 255 - rgb.b };"
-            seems to swap r and g--i.e., make complement_rgb.r = 255 - rgb.g, c_r.g = 255-r.r, c_r.b = 255-r.b
-            (which, BTW, doesn't make sense w/RGB (a.k.a. cRGB) in quantum/color.h (if that's even the relevant def...))
-            (presumably "RGB complement_rgb = { 255 - rgb.g, 255 - rgb.r, 255 - rgb.b };" could solve this, but that
-            seems unnatural / potentially confusing.)
-            */
-            // TODO? if all r,g,b are close to 255/2, the complement will be close to (and hard to discern from) the
-            //       original color (should this be changed?)
-            complement_rgb.r = 255 - rgb.r;
-            complement_rgb.g = 255 - rgb.g;
-            complement_rgb.b = 255 - rgb.b;
+            // TODO? if each of r,g,b are close to 255/2, then the complement will be close to (and hard to discern
+            //       from) the original color... so should the color set here (as a function of r,g,b) be changed?
+            RGB complement_rgb = { .r=255-rgb.r, .g=255-rgb.g, .b=255-rgb.b };
             for (int i = 0; i < layer_used_indices_size[layer]; ++i) {
                 rgb_matrix_set_color(
                     layers_used_indices[layer][i],
