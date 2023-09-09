@@ -425,46 +425,37 @@ bool is_ecp_change_keycode(uint16_t keycode) {
 int index_in_byte = -1; // 0-15 value equal to the last hex value edited (one of RH, RL, GH, GL, BH, BL)
 
 // [ECP]
-// from lv_color.c (adapted to [0-255]x[0-255]x[0-255] -> [0-255]x[0-255]x[0-255])
-// TODO! is this right?
 HSV rgb_to_hsv(RGB rgb) {
-    uint16_t r = ((uint32_t)(rgb.r) << 10) / 255;
-    uint16_t g = ((uint32_t)(rgb.g) << 10) / 255;
-    uint16_t b = ((uint32_t)(rgb.b) << 10) / 255;
-    uint16_t rgbMin = min(r, min(g, b));
-    uint16_t rgbMax = max(r, max(g, b));
     HSV hsv;
-    // https://en.wikipedia.org/wiki/HSL_and_HSV#Lightness
-    hsv.v = (255 * rgbMax) >> 10;
-    int32_t delta = rgbMax - rgbMin;
-    if (delta < 3) {
+
+    uint8_t rgbMin = min(rgb.r, min(rgb.g, rgb.b));
+    uint8_t rgbMax = max(rgb.r, max(rgb.g, rgb.b));
+
+    hsv.v = rgbMax;
+    uint8_t chroma = rgbMax - rgbMin;
+    if (chroma == 0) {
         hsv.h = 0;
         hsv.s = 0;
         return hsv;
     }
-    // https://en.wikipedia.org/wiki/HSL_and_HSV#Saturation
-    hsv.s = 255 * delta / rgbMax;
-    if (hsv.s < 3) {
-        hsv.h = 0;
-        return hsv;
+
+    // NB: hsv.v != 0 since chroma != 0
+    hsv.s = round(255.0 * chroma / hsv.v);
+
+    double unscaledSextupledH;
+    if (rgbMax == rgb.r) {
+        unscaledSextupledH = 1.0 * (rgb.g - rgb.b) / chroma;
+    } else if (rgbMax == rgb.g) {
+        unscaledSextupledH = (1.0 * (rgb.b - rgb.r) / chroma) + 2;
+    } else if (rgbMax == rgb.b) {
+        unscaledSextupledH = (1.0 * (rgb.r - rgb.g) / chroma) + 4;
+    } else { // impossible case
+        unscaledSextupledH = 0;
     }
-    // https://en.wikipedia.org/wiki/HSL_and_HSV#Hue_and_chroma
-    int32_t h;
-    if (rgbMax == r) {
-        h = (((g - b) << 10) / delta) + (g < b ? (6 << 10) : 0); // between yellow & magenta
-    } else if (rgbMax == g) {
-        h = (((b - r) << 10) / delta) + (2 << 10); // between cyan & yellow
-    } else if (rgbMax == b) {
-        h = (((r - g) << 10) / delta) + (4 << 10); // between magenta & cyan
-    } else { // should not occur!
-        h = 0;
-    }
-    h *= 60;
-    h >>= 10;
-    if (h < 0) {
-        h += 360;
-    }
-    hsv.h = h * 255.0 / 360;
+    hsv.h = round(unscaledSextupledH * 255 / 6);
+
+    if (hsv.h < 0) hsv.h += 255;
+
     return hsv;
 }
 
