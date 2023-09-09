@@ -222,9 +222,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [CLR_PKR] = LAYOUT_ansi_84(
      // TODO go back to WIN_BASE (instead of MAC_BASE) as appropriate
 #if CPICK_OFFER_GRAYSCALE
-     GRAY00,   GRAY01,   GRAY02,   GRAY03,   GRAY04,   GRAY05,   GRAY06,   GRAY07,   GRAY08,   GRAY09,   GRAY10,   GRAY11,   XXXXXXX,  XXXXXXX,  XXXXXXX,  KC_NO,
+     GRAY00,   GRAY01,   GRAY02,   GRAY03,   GRAY04,   GRAY05,   GRAY06,   GRAY07,   GRAY08,   GRAY09,   GRAY10,   GRAY11,   XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, // keycode 15 is lit RED, though pressing any XXXXXXX aborts color choosing
 #else
-     XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  KC_NO,
+     XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, // keycode 15 is lit RED, though pressing any XXXXXXX aborts color choosing
 #endif
      COLOR00,  COLOR04,  COLOR08,  COLOR12,  COLOR16,  COLOR20,  COLOR24,  COLOR28,  COLOR32,  COLOR36,  COLOR40,  COLOR44,  XXXXXXX,  XXXXXXX,            XXXXXXX,
      COLOR01,  COLOR05,  COLOR09,  COLOR13,  COLOR17,  COLOR21,  COLOR25,  COLOR29,  COLOR33,  COLOR37,  COLOR41,  COLOR45,  XXXXXXX,  XXXXXXX,            XXXXXXX,
@@ -250,10 +250,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * only ones set, layer_used_indices will start { 0, 5, 83, ... } (followed by 0s) and [initialize_layer_used_indices]
  * will return 3.)
  *
- * why is [offset] used below? rgb_matrix_set_color's first argument appears to be based on an index of keys _not_
- * including KC_NO--there are 96 (=[MATRIX_ROWS] * [MATRIX_COLS]) keycodes in each keymaps[layer], but (apparently) the
- * non-KC_NO keys are indexed 0-83 (and there are 96-84=12 instances of KC_NO (per layer))... see LAYOUT_ansi_84's
- * definition in obj_keychron_k3_pro_ansi_rgb/src/default_keyboard.h
+ * [offset] is used below because [rgb_matrix_set_color]'s first argument appears to be based on an index of keys _not_
+ * including KC_NO (== XXXXXXX)--there are 96 (=[MATRIX_ROWS] * [MATRIX_COLS]) keycodes in each keymaps[layer], but
+ * (apparently) the non-KC_NO keys are indexed 0-83 (and there are 96-84=12 instances of KC_NO (per layer))... see
+ * LAYOUT_ansi_84's definition in obj_keychron_k3_pro_ansi_rgb/src/default_keyboard.h
  */
 int initialize_layer_used_indices(int layer, char* layer_used_indices) {
     int lui_i = 0;
@@ -264,7 +264,7 @@ int initialize_layer_used_indices(int layer, char* layer_used_indices) {
         switch (keymaps[layer][row][col]) {
             case _______:
                 break;
-            case KC_NO:
+            case KC_NO: // == XXXXXXX
                 ++offset;
                 break;
             default:
