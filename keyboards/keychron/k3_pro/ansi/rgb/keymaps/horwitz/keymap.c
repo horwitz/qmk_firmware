@@ -34,12 +34,14 @@
  *     TO ACTIVATE: The feature is always on.
  *
  * (3) SHORT NAME: [CPICK]
- *     DETAILS: `fn+V` presents a 12x4 rainbow grid of keys (with the remaining keys§ dark)--pressing any one of these
- *              keys sets the base layer (e.g., layer 0 when `fn` goes to layer 1) to a solid pattern of that color. The
- *              top row (of four rows) are primary, secondary, and tertiary colors--in standard order: red (1),
- *              orange (3), yellow (2), chartreuse (3), green (1), spring green (3), cyan (2), azure (3), blue (1),
- *              violet (3), magenta (2), rose (3) (colors, going down then across, increase in hue by approximately 1/48
- *              (in a range of [0,1)) (w/(HSV) saturation and value both of 1 (in [0,1])).
+ *     DETAILS: `fn+V` presents a 12x4 rainbow grid of keys and 12 grayscale keys on the top row (with the remaining
+ *              keys§ dark)--pressing any one of these keys sets the base layer (e.g., layer 0 when `fn` goes to layer
+ *              1) to a solid pattern of that color. The top row (of the four color rows) are primary, secondary, and
+ *              tertiary colors--in standard order: red (1), orange (3), yellow (2), chartreuse (3), green (1), spring
+ *              green (3), cyan (2), azure (3), blue (1), violet (3), magenta (2), rose (3) (colors, going down then
+ *              across, increase in hue by approximately 1/48 (in a range of [0,1)) (w/(HSV) saturation and value both
+ *              of 1 (in [0,1])). The grayscale keys, left to right, produce an HSV value from 0 to 1 (in a range of
+ *              [0,1]) (w/(HSV) hue and saturation both of 0 (in [0,1) and [0,1], respectively)).
  *     TO ACTIVATE: The feature is always on.
  *     NOTE: The feature creates a fifth layer (layer 4) for the rainbow grid (meant only to be accessed for the
  *           purposes mentioned above in DETAILS). Actual hue values are encoded as integers in [0,256) (scaled from
@@ -138,6 +140,9 @@ enum ctrl_keycodes {
         COLOR36, COLOR37, COLOR38, COLOR39,
         COLOR40, COLOR41, COLOR42, COLOR43,
         COLOR44, COLOR45, COLOR46, COLOR47,
+        GRAY00, GRAY01, GRAY02, GRAY03,
+        GRAY04, GRAY05, GRAY06, GRAY07,
+        GRAY08, GRAY09, GRAY10, GRAY11,
 
 // [ECP] // meta ECP
         TOECP,
@@ -147,9 +152,12 @@ enum ctrl_keycodes {
         ECPSET
 };
 int MIN_COLOR_KEYCODE = COLOR00; // [CPICK]
-int MAX_COLOR_KEYCODE = COLOR47; // [CPICK]
+int MAX_COLOR_KEYCODE = GRAY11; // [CPICK]
 int MIN_ECP_CHANGE_KEYCODE = RHI; // [ECP]
 int MAX_ECP_CHANGE_KEYCODE = ECPSET; // [ECP]
+
+// [CPICK]
+enum COLOR_SCHEME { RGB_SCHEME, GRAY_SCHEME };
 
 // [ECP]
 enum RGB_COLOR { RED, GREEN, BLUE };
@@ -209,7 +217,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // [CPICK]
 [CLR_PKR] = LAYOUT_ansi_84(
      // TODO go back to WIN_BASE (instead of MAC_BASE) as appropriate
-     XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  KC_NO,
+     GRAY00,   GRAY01,   GRAY02,   GRAY03,   GRAY04,   GRAY05,   GRAY06,   GRAY07,   GRAY08,   GRAY09,   GRAY10,   GRAY11,   XXXXXXX,  XXXXXXX,  XXXXXXX,  KC_NO,
      COLOR00,  COLOR04,  COLOR08,  COLOR12,  COLOR16,  COLOR20,  COLOR24,  COLOR28,  COLOR32,  COLOR36,  COLOR40,  COLOR44,  XXXXXXX,  XXXXXXX,            XXXXXXX,
      COLOR01,  COLOR05,  COLOR09,  COLOR13,  COLOR17,  COLOR21,  COLOR25,  COLOR29,  COLOR33,  COLOR37,  COLOR41,  COLOR45,  XXXXXXX,  XXXXXXX,            XXXXXXX,
      COLOR02,  COLOR06,  COLOR10,  COLOR14,  COLOR18,  COLOR22,  COLOR26,  COLOR30,  COLOR34,  COLOR38,  COLOR42,  COLOR46,            XXXXXXX,            XXXXXXX,
@@ -268,14 +276,16 @@ char layers_used_indices[DYNAMIC_KEYMAP_LAYER_COUNT][RGB_MATRIX_LED_COUNT];
 int layer_used_indices_size[DYNAMIC_KEYMAP_LAYER_COUNT];
 
 // [CPICK]
-// TODO? (1) derive via sizeof color_picker_hues and/or color_picker_palette_keycodes OR (2) validate that
-//       color_picker_palette_keycodes is initialized with an rvalue of PALETTE_SIZE elements (see comment above
-//       color_picker_palette_keycodes's initialization)
-#define PALETTE_SIZE 48
+// TODO? (1) derive via sizeof color_picker_color_hues and/or color_picker_color_palette_keycodes OR (2) validate that
+//       color_picker_color_palette_keycodes is initialized with an rvalue of COLOR_PALETTE_SIZE elements (see comment
+//       above color_picker_color_palette_keycodes's initialization)
+#define COLOR_PALETTE_SIZE 48
+#define GRAY_PALETTE_SIZE 12
 
 // [CPICK]
-int color_picker_hues[PALETTE_SIZE];
-RGB color_picker_rgbs[PALETTE_SIZE];
+int color_picker_color_hues[COLOR_PALETTE_SIZE];
+RGB color_picker_color_rgbs[COLOR_PALETTE_SIZE];
+int color_picker_gray_intensities[GRAY_PALETTE_SIZE];
 
 void keyboard_post_init_user(void) {
     // [DEBUG]
@@ -295,11 +305,15 @@ void keyboard_post_init_user(void) {
     128, 133, 139, 144, 149, 155, 160, 165, 171, 176, 181, 187,
     192, 197, 203, 208, 213, 219, 224, 229, 235, 240, 245, 251
     */
-    for (int i = 0; i < PALETTE_SIZE; ++i) {
-        color_picker_hues[i] = round(i * 256.0 / 48);
-        HSV hsv = { color_picker_hues[i], 255, 255 };
-        color_picker_rgbs[i] = hsv_to_rgb(hsv);
+    for (int i = 0; i < COLOR_PALETTE_SIZE; ++i) {
+        color_picker_color_hues[i] = round(i * 256.0 / COLOR_PALETTE_SIZE);
+        HSV hsv = { color_picker_color_hues[i], 255, 255 };
+        color_picker_color_rgbs[i] = hsv_to_rgb(hsv);
     }
+    for (int i = 0; i < GRAY_PALETTE_SIZE; ++i) {
+        color_picker_gray_intensities[i] = round(i * 255.0 / (GRAY_PALETTE_SIZE - 1));
+    }
+
 
     // [FN-HI]
     // TODO? only do for layer = MAC_FN and layer = WIN_FN (rather than all layers), since FN-HI only uses those layers
@@ -310,10 +324,10 @@ void keyboard_post_init_user(void) {
 }
 
 // [CPICK]
-// TODO? check that the rvalue for the color_picker_palette_keycodes assignment actually has PALETTE_SIZE elements (not
-//       fewer--too many would lead to a compilation failure, but too few would leave (presumably unwanted) 0s at the
-//       end)
-int color_picker_palette_keycodes[PALETTE_SIZE] = {
+// TODO? check that the rvalue for the color_picker_color_palette_keycodes assignment actually has COLOR_PALETTE_SIZE
+//       elements (not fewer--too many would lead to a compilation failure, but too few would leave (presumably
+//       unwanted) 0s at the end)
+int color_picker_color_palette_keycodes[COLOR_PALETTE_SIZE] = {
     16, // `    (COLOR00: (1) red)
     31, // TAB  (COLOR01: (5) scarlet)
     46, // CAPS (COLOR02: (4) vermilion)
@@ -363,16 +377,34 @@ int color_picker_palette_keycodes[PALETTE_SIZE] = {
     57, // '    (COLOR46: (4) crimson)
     71  // RSFT (COLOR47: (5) amaranth)
 };
+int color_picker_gray_palette_keycodes[GRAY_PALETTE_SIZE] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
 // [CPICK]
-// returns 0 for COLOR00, 1 for COLOR01, ...
-int get_color_picker_keycode_index(uint16_t keycode) {
+// returns 0 for COLOR00, 1 for COLOR01, ..., 47 for COLOR47
+int get_color_picker_color_keycode_index(uint16_t keycode) {
     return keycode - COLOR00;
+}
+
+// [CPICK]
+// returns 0 for GRAY00, 1 for COLOR01, ..., 11 for GRAY11
+int get_color_picker_gray_keycode_index(uint16_t keycode) {
+    return keycode - GRAY00;
 }
 
 // [CPICK]
 bool is_color_picker_color_keycode(uint16_t keycode) {
     return keycode >= MIN_COLOR_KEYCODE && keycode <= MAX_COLOR_KEYCODE;
+}
+
+// [CPICK]
+enum COLOR_SCHEME get_color_scheme(uint16_t keycode) {
+    if (keycode >= COLOR00 && keycode <= COLOR47) {
+        return RGB_SCHEME;
+    } else if (keycode >= GRAY00 && keycode <= GRAY11) {
+        return GRAY_SCHEME;
+    } else {
+        return -1; // this should never happen... (TODO handle some other way?)
+    }
 }
 
 // [ECP]
@@ -516,7 +548,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (is_color_picker_color_keycode(keycode)) {
         if (record -> event.pressed) {
             rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
-            rgb_matrix_sethsv(color_picker_hues[get_color_picker_keycode_index(keycode)], 255, 255);
+            switch (get_color_scheme(keycode)) {
+                case RGB_SCHEME:
+                    rgb_matrix_sethsv(color_picker_color_hues[get_color_picker_color_keycode_index(keycode)], 255, 255);
+                    break;
+                case GRAY_SCHEME:
+                    rgb_matrix_sethsv(0, 0, color_picker_gray_intensities[get_color_picker_gray_keycode_index(keycode)]);
+                    break;
+            }
         }
         retval = false;
     // [ECP]
@@ -648,6 +687,8 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             (presumably "RGB complement_rgb = { 255 - rgb.g, 255 - rgb.r, 255 - rgb.b };" could solve this, but that
             seems unnatural / potentially confusing.)
             */
+            // TODO? if all r,g,b are close to 255/2, the complement will be close to (and hard to discern from) the
+            //       original color (should this be changed?)
             complement_rgb.r = 255 - rgb.r;
             complement_rgb.g = 255 - rgb.g;
             complement_rgb.b = 255 - rgb.b;
@@ -666,12 +707,15 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         case CLR_PKR: {
             rgb_matrix_set_color_all(RGB_BLACK); // set keys not changed below to black
             rgb_matrix_set_color(15, RGB_RED); // RGB_MOD red // TODO? different color here
-            // TODO? allow picking white and/or black
 
             // [CPICK]
-            for (int i = 0; i < PALETTE_SIZE; ++i) {
-                RGB rgb = color_picker_rgbs[i];
-                rgb_matrix_set_color(color_picker_palette_keycodes[i], rgb.r, rgb.g, rgb.b);
+            for (int i = 0; i < COLOR_PALETTE_SIZE; ++i) {
+                RGB rgb = color_picker_color_rgbs[i];
+                rgb_matrix_set_color(color_picker_color_palette_keycodes[i], rgb.r, rgb.g, rgb.b);
+            }
+            for (int i = 0; i < GRAY_PALETTE_SIZE; ++i) {
+                int intensity = color_picker_gray_intensities[i];
+                rgb_matrix_set_color(color_picker_gray_palette_keycodes[i], intensity, intensity, intensity);
             }
 
             break;
