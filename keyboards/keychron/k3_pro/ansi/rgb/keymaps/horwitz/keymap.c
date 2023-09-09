@@ -497,6 +497,19 @@ ecp_key_t get_ecp_key(uint16_t keycode) {
     return ecp_key;
 }
 
+// [ECP]
+layer_state_t layer_state_set_user(layer_state_t state) {
+    switch (get_highest_layer(state)) {
+        case ECP:
+            index_in_byte = -1; // clear the white lights from the top row
+            break;
+        default:
+            break;
+        }
+
+    return state;
+}
+
 // [CPICK]
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool retval = true;
