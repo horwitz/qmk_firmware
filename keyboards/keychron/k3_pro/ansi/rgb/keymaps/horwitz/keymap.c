@@ -316,7 +316,7 @@ void keyboard_post_init_user(void) {
     for (int i = 0; i < COLOR_PALETTE_SIZE; ++i) {
         color_picker_color_hues[i] = round(i * 256.0 / COLOR_PALETTE_SIZE);
         HSV hsv = { color_picker_color_hues[i], 255, 255 };
-        color_picker_color_rgbs[i] = hsv_to_rgb(hsv);
+        color_picker_color_rgbs[i] = hsv_to_rgb_nocie(hsv);
     }
     for (int i = 0; i < GRAY_PALETTE_SIZE; ++i) {
         color_picker_gray_intensities[i] = round(i * 255.0 / (GRAY_PALETTE_SIZE - 1));
@@ -651,7 +651,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         retval = false;
     // [ECP]
     } else if (keycode == TOECP) {
-        ecpRgb = hsv_to_rgb(rgb_matrix_get_hsv());
+        ecpRgb = hsv_to_rgb_nocie(rgb_matrix_get_hsv());
 //        uprintf("setting ecpRgb: (%d,%d,%d)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
         layer_on(ECP);
         retval = false;
@@ -683,7 +683,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         case MAC_FN:
         case WIN_FN: {
 //            rgb_matrix_set_color_all(RGB_BLUE); // uncomment to have transparent keys appear solid blue
-            RGB rgb = hsv_to_rgb(rgb_matrix_get_hsv());
+            RGB rgb = hsv_to_rgb_nocie(rgb_matrix_get_hsv());
             // TODO what exactly _is_ the color returned by rgb_matrix_get_hsv()? is this some overall color (as opposed
             //      to per-key ones)?
             RGB complement_rgb;
