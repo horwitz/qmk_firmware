@@ -57,7 +57,7 @@
  *              on each key of the 3x3 grid  IOP KL; ,./  . Hitting Enter (which will be white) accepts the picker's
  *              current color, setting the base layer to a solid pattern of that color. Hitting Esc aborts, making no
  *              change in the base layer's color. A & S show the red contribution (the two highest bytes in the 6-byte
- *              RBG representation; note that A and S's colors are the same), D & F show the green contribution, and
+ *              RGB representation; note that A and S's colors are the same), D & F show the green contribution, and
  *              G & H show the blue contribution. Q increases the red contribution by 16 and W increases it by 1--in
  *              both cases stopping at the max of 255. Similarly Z and X respectively lower the red contribution by 16
  *              and 1, stopping at the min of 0. Similarly E,R,C,V raise/lower green by 16 or 1; T,Y,B,N raise/lower
