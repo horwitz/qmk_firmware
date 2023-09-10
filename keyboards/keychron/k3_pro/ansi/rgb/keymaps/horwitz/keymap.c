@@ -55,7 +55,7 @@
  * (5) SHORT NAME: [ECP]
  *     DETAILS: Used to set the base layer to a solid pattern of any 24-bit color. The picker's current color is shown
  *              on each key of the 3x3 grid  IOP KL; ,./  . Hitting Enter (which will be white) accepts the picker's
- *              current color, setting the base layer to a solid pattern of that color. Hitting Esc aborts, making no
+ *              current color, setting the base layer to a solid pattern of that color. Hitting End aborts, making no
  *              change in the base layer's color. A & S show the red contribution (the two highest bytes in the 6-byte
  *              RGB representation; note that A and S's colors are the same), D & F show the green contribution, and
  *              G & H show the blue contribution. Q increases the red contribution by 16 and W increases it by 1--in
@@ -82,7 +82,7 @@
  * † main(?) color
  * ‡ or is it the layer from which one came (e.g., starting at a base layer of 2, will these be complementary to layer
  *     2's color†)?
- * § RGB_MOD is set to RGB_RED and, when hit, leaves the layer, making no change to the base layer's color
+ * § End is set to RGB_RED and, when hit, leaves the layer, making no change to the base layer's color
  */
 
 // [DEBUG]
@@ -723,7 +723,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
         // [CPICK]
         case CLR_PKR: {
-            rgb_matrix_set_color_all(RGB_BLACK); // set keys not changed below to black
+            rgb_matrix_set_color_all(RGB_OFF); // RGB_OFF == RGB_BLACK // keys not changed below to black
             rgb_matrix_set_color(73, RGB_RED); // set End to red // TODO? different color here
 
             // [CPICK]
@@ -744,7 +744,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         case ECP: {
             // set A,S to R level; D,F to G level; G,H to B level; set ENTER white; set some of top row to white (see
             // below); set QWERTY ZXCVBN as described above; set all else black
-            rgb_matrix_set_color_all(RGB_BLACK); // set keys not changed below to black
+            rgb_matrix_set_color_all(RGB_OFF); // RGB_OFF == RGB_BLACK // set keys not changed below to black
             // ESC currently used for top-row 0-15 readout, so we couldn't use it as the abort key (at least we couldn't
             // color it to _signify_ that it's the abort key), so we use the End key as the abort key
             rgb_matrix_set_color(73, RGB_RED); // set End to red // TODO? different color here
@@ -789,7 +789,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             // if index_in_byte >= 0, color ESC (white)
             // and if index_in_byte >= 1, color F1
             // ...
-            // and if index_in_byte >= 15, color RGB_TOG
+            // and if index_in_byte >= 15, color RGB_MOD
             for (int top_row_keycode = 0; top_row_keycode <= index_in_byte; ++top_row_keycode) {
                 rgb_matrix_set_color(top_row_keycode, RGB_WHITE); // TODO? some other color than white (perhaps state dependent?)
             }
