@@ -193,7 +193,7 @@ typedef struct {
     enum RGB_COLOR color;
     enum NIBBLE_LEVEL nibbleLevel;
     enum DELTA_DIR deltaDir;
-} ecp_key_t;
+} ccp_key_t;
 
 // [SUS-RGB]
 void suspend_power_down_user(void) {
@@ -434,7 +434,7 @@ enum COLOR_SCHEME get_color_scheme(uint16_t keycode) {
 
 // [CCP]
 // NB: does NOT include TOCCP (which is not on the CCP layer)
-bool is_ecp_change_keycode(uint16_t keycode) {
+bool is_ccp_change_keycode(uint16_t keycode) {
     return keycode >= MIN_CCP_CHANGE_KEYCODE && keycode <= MAX_CCP_CHANGE_KEYCODE;
 }
 
@@ -477,30 +477,30 @@ HSV rgb_to_hsv(RGB rgb) {
 }
 
 // [CCP]
-RGB ecpRgb;
+RGB ccpRgb;
 
 // [CCP]
-ecp_key_t get_ecp_key(uint16_t keycode) {
-    ecp_key_t ecp_key;
+ccp_key_t get_ccp_key(uint16_t keycode) {
+    ccp_key_t ccp_key;
 
     switch (keycode) {
         case RHI:
         case RHD:
         case RLI:
         case RLD:
-            ecp_key.color = RED;
+            ccp_key.color = RED;
             break;
         case GHI:
         case GHD:
         case GLI:
         case GLD:
-            ecp_key.color = GREEN;
+            ccp_key.color = GREEN;
             break;
         case BHI:
         case BHD:
         case BLI:
         case BLD:
-            ecp_key.color = BLUE;
+            ccp_key.color = BLUE;
             break;
     }
 
@@ -511,7 +511,7 @@ ecp_key_t get_ecp_key(uint16_t keycode) {
         case GHD:
         case BHI:
         case BHD:
-            ecp_key.nibbleLevel = HIGH;
+            ccp_key.nibbleLevel = HIGH;
             break;
         case RLI:
         case RLD:
@@ -519,7 +519,7 @@ ecp_key_t get_ecp_key(uint16_t keycode) {
         case GLD:
         case BLI:
         case BLD:
-            ecp_key.nibbleLevel = LOW;
+            ccp_key.nibbleLevel = LOW;
             break;
     }
 
@@ -530,7 +530,7 @@ ecp_key_t get_ecp_key(uint16_t keycode) {
         case GLI:
         case BHI:
         case BLI:
-            ecp_key.deltaDir = INC;
+            ccp_key.deltaDir = INC;
             break;
         case RHD:
         case RLD:
@@ -538,11 +538,11 @@ ecp_key_t get_ecp_key(uint16_t keycode) {
         case GLD:
         case BHD:
         case BLD:
-            ecp_key.deltaDir = DEC;
+            ccp_key.deltaDir = DEC;
             break;
     }
 
-    return ecp_key;
+    return ccp_key;
 }
 
 // [CCP]
@@ -577,42 +577,42 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         retval = false;
     // [CCP]
-    } else if (is_ecp_change_keycode(keycode)) {
+    } else if (is_ccp_change_keycode(keycode)) {
         if (record -> event.pressed) {
             if (keycode == CCPSET) {
                 rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
-                HSV hsv = rgb_to_hsv(ecpRgb);
-//                uprintf("CCPSET: ecpRgb=(%d,%d,%d) -> hsv=(%d,%d,%d)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b, hsv.h, hsv.s, hsv.v);
+                HSV hsv = rgb_to_hsv(ccpRgb);
+//                uprintf("CCPSET: ccpRgb=(%d,%d,%d) -> hsv=(%d,%d,%d)\n", ccpRgb.r, ccpRgb.g, ccpRgb.b, hsv.h, hsv.s, hsv.v);
                 rgb_matrix_sethsv(hsv.h, hsv.s, hsv.v);
                 layer_off(CCP);
             } else {
 //                uprintf("keycode-RHI: %2u\n", keycode - RHI);
-//                uprintf(">> ecpRgb: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
-                // if RHI, then ecpRgb.r += 16, index_in_byte = ecpRgb.r/16
-                // if RHD, then ecpRgb.r -= 16, index_in_byte = ecpRgb.r/16
-                // if RLI, then ++(ecpRgb.r), index_in_byte = ecpRgb.r % 16
+//                uprintf(">> ccpRgb: (%2u,%2u,%2u)\n", ccpRgb.r, ccpRgb.g, ccpRgb.b);
+                // if RHI, then ccpRgb.r += 16, index_in_byte = ccpRgb.r/16
+                // if RHD, then ccpRgb.r -= 16, index_in_byte = ccpRgb.r/16
+                // if RLI, then ++(ccpRgb.r), index_in_byte = ccpRgb.r % 16
                 // ...
-                // if BLD, then --(ecpRgb.b), index_in_byte = ecpRgb.b % 16
+                // if BLD, then --(ccpRgb.b), index_in_byte = ccpRgb.b % 16
                 // TODO! is int16_t the right type?
                 // TODO? don't initialize?
-                int16_t component = -1; // whichever of ecpRgb.r, .g, or .b is going to change
+                int16_t component = -1; // whichever of ccpRgb.r, .g, or .b is going to change
 
-                ecp_key_t ecp_key = get_ecp_key(keycode);
+                ccp_key_t ccp_key = get_ccp_key(keycode);
 
-                switch (ecp_key.color) {
+                switch (ccp_key.color) {
                     case RED:
-                        component = ecpRgb.r;
+                        component = ccpRgb.r;
                         break;
                     case GREEN:
-                        component = ecpRgb.g;
+                        component = ccpRgb.g;
                         break;
                     case BLUE:
-                        component = ecpRgb.b;
+                        component = ccpRgb.b;
                         break;
                 }
 
                 int absDelta = -1;
-                 switch (ecp_key.nibbleLevel) {
+                 switch (ccp_key.nibbleLevel) {
                      case HIGH:
                          absDelta = 16;
                          break;
@@ -621,7 +621,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                          break;
                 }
                 int delta = -1;
-                switch (ecp_key.deltaDir) {
+                switch (ccp_key.deltaDir) {
                     case INC:
                         delta = absDelta;
                         break;
@@ -631,7 +631,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
                 component = bound(component + delta);
 
-                switch (ecp_key.nibbleLevel) {
+                switch (ccp_key.nibbleLevel) {
                     case HIGH:
                         index_in_byte = component / 16;
                         break;
@@ -640,29 +640,29 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                         break;
                 }
 
-//uprintf("before: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
-                switch (ecp_key.color) {
+//uprintf("before: (%2u,%2u,%2u)\n", ccpRgb.r, ccpRgb.g, ccpRgb.b);
+                switch (ccp_key.color) {
                     case RED:
-                        ecpRgb.r = component;
+                        ccpRgb.r = component;
                         break;
                     case GREEN:
-                        ecpRgb.g = component;
+                        ccpRgb.g = component;
                         break;
                     case BLUE:
-                        ecpRgb.b = component;
+                        ccpRgb.b = component;
                         break;
                 }
-//uprintf("after: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
+//uprintf("after: (%2u,%2u,%2u)\n", ccpRgb.r, ccpRgb.g, ccpRgb.b);
 
             }
-//            uprintf("<< ecpRgb: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
+//            uprintf("<< ccpRgb: (%2u,%2u,%2u)\n", ccpRgb.r, ccpRgb.g, ccpRgb.b);
 //            uprintf("iib: %2u\n", index_in_byte);
         }
         retval = false;
     // [CCP]
     } else if (keycode == TOCCP) {
-        ecpRgb = hsv_to_rgb_nocie(rgb_matrix_get_hsv());
-//        uprintf("setting ecpRgb: (%d,%d,%d)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
+        ccpRgb = hsv_to_rgb_nocie(rgb_matrix_get_hsv());
+//        uprintf("setting ccpRgb: (%d,%d,%d)\n", ccpRgb.r, ccpRgb.g, ccpRgb.b);
         layer_on(CCP);
         retval = false;
     } else {
@@ -748,38 +748,38 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             // ESC currently used for top-row 0-15 readout, so we couldn't use it as the abort key (at least we couldn't
             // color it to _signify_ that it's the abort key), so we use the End key as the abort key
             rgb_matrix_set_color(73, RGB_RED); // set End to red // TODO? different color here
-//            uprintf("R (AS): %2u / G (DF): %2u / B (GH): %2u\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
+//            uprintf("R (AS): %2u / G (DF): %2u / B (GH): %2u\n", ccpRgb.r, ccpRgb.g, ccpRgb.b);
 
-            rgb_matrix_set_color(32, 255, ecpRgb.g, ecpRgb.b); // Q
-            rgb_matrix_set_color(33, (ecpRgb.r / 16) * 16 + 16 - 1, ecpRgb.g, ecpRgb.b); // W
-            rgb_matrix_set_color(34, ecpRgb.r, 255, ecpRgb.b); // E
-            rgb_matrix_set_color(35, ecpRgb.r, (ecpRgb.g / 16) * 16 + 16 - 1, ecpRgb.b); // R
-            rgb_matrix_set_color(36, ecpRgb.r, ecpRgb.g, 255); // T
-            rgb_matrix_set_color(37, ecpRgb.r, ecpRgb.g, (ecpRgb.b / 16) * 16 + 16 - 1); // Y
+            rgb_matrix_set_color(32, 255, ccpRgb.g, ccpRgb.b); // Q
+            rgb_matrix_set_color(33, (ccpRgb.r / 16) * 16 + 16 - 1, ccpRgb.g, ccpRgb.b); // W
+            rgb_matrix_set_color(34, ccpRgb.r, 255, ccpRgb.b); // E
+            rgb_matrix_set_color(35, ccpRgb.r, (ccpRgb.g / 16) * 16 + 16 - 1, ccpRgb.b); // R
+            rgb_matrix_set_color(36, ccpRgb.r, ccpRgb.g, 255); // T
+            rgb_matrix_set_color(37, ccpRgb.r, ccpRgb.g, (ccpRgb.b / 16) * 16 + 16 - 1); // Y
 
-            rgb_matrix_set_color(39, ecpRgb.r, ecpRgb.g, ecpRgb.b); // I
-            rgb_matrix_set_color(40, ecpRgb.r, ecpRgb.g, ecpRgb.b); // O
-            rgb_matrix_set_color(41, ecpRgb.r, ecpRgb.g, ecpRgb.b); // P
-            rgb_matrix_set_color(54, ecpRgb.r, ecpRgb.g, ecpRgb.b); // K
-            rgb_matrix_set_color(55, ecpRgb.r, ecpRgb.g, ecpRgb.b); // L
-            rgb_matrix_set_color(56, ecpRgb.r, ecpRgb.g, ecpRgb.b); // ;
-            rgb_matrix_set_color(68, ecpRgb.r, ecpRgb.g, ecpRgb.b); // ,
-            rgb_matrix_set_color(69, ecpRgb.r, ecpRgb.g, ecpRgb.b); // .
-            rgb_matrix_set_color(70, ecpRgb.r, ecpRgb.g, ecpRgb.b); // /
+            rgb_matrix_set_color(39, ccpRgb.r, ccpRgb.g, ccpRgb.b); // I
+            rgb_matrix_set_color(40, ccpRgb.r, ccpRgb.g, ccpRgb.b); // O
+            rgb_matrix_set_color(41, ccpRgb.r, ccpRgb.g, ccpRgb.b); // P
+            rgb_matrix_set_color(54, ccpRgb.r, ccpRgb.g, ccpRgb.b); // K
+            rgb_matrix_set_color(55, ccpRgb.r, ccpRgb.g, ccpRgb.b); // L
+            rgb_matrix_set_color(56, ccpRgb.r, ccpRgb.g, ccpRgb.b); // ;
+            rgb_matrix_set_color(68, ccpRgb.r, ccpRgb.g, ccpRgb.b); // ,
+            rgb_matrix_set_color(69, ccpRgb.r, ccpRgb.g, ccpRgb.b); // .
+            rgb_matrix_set_color(70, ccpRgb.r, ccpRgb.g, ccpRgb.b); // /
 
-            rgb_matrix_set_color(47, ecpRgb.r, 0, 0); // A
-            rgb_matrix_set_color(48, ecpRgb.r, 0, 0); // S
-            rgb_matrix_set_color(49, 0, ecpRgb.g, 0); // D
-            rgb_matrix_set_color(50, 0, ecpRgb.g, 0); // F
-            rgb_matrix_set_color(51, 0, 0, ecpRgb.b); // G
-            rgb_matrix_set_color(52, 0, 0, ecpRgb.b); // H
+            rgb_matrix_set_color(47, ccpRgb.r, 0, 0); // A
+            rgb_matrix_set_color(48, ccpRgb.r, 0, 0); // S
+            rgb_matrix_set_color(49, 0, ccpRgb.g, 0); // D
+            rgb_matrix_set_color(50, 0, ccpRgb.g, 0); // F
+            rgb_matrix_set_color(51, 0, 0, ccpRgb.b); // G
+            rgb_matrix_set_color(52, 0, 0, ccpRgb.b); // H
 
-            rgb_matrix_set_color(61, 0, ecpRgb.g, ecpRgb.b); // Z
-            rgb_matrix_set_color(62, (ecpRgb.r / 16) * 16, ecpRgb.g, ecpRgb.b); // X
-            rgb_matrix_set_color(63, ecpRgb.r, 0, ecpRgb.b); // C
-            rgb_matrix_set_color(64, ecpRgb.r, (ecpRgb.g / 16) * 16, ecpRgb.b); // V
-            rgb_matrix_set_color(65, ecpRgb.r, ecpRgb.g, 0); // B
-            rgb_matrix_set_color(66, ecpRgb.r, ecpRgb.g, (ecpRgb.b / 16) * 16); // N
+            rgb_matrix_set_color(61, 0, ccpRgb.g, ccpRgb.b); // Z
+            rgb_matrix_set_color(62, (ccpRgb.r / 16) * 16, ccpRgb.g, ccpRgb.b); // X
+            rgb_matrix_set_color(63, ccpRgb.r, 0, ccpRgb.b); // C
+            rgb_matrix_set_color(64, ccpRgb.r, (ccpRgb.g / 16) * 16, ccpRgb.b); // V
+            rgb_matrix_set_color(65, ccpRgb.r, ccpRgb.g, 0); // B
+            rgb_matrix_set_color(66, ccpRgb.r, ccpRgb.g, (ccpRgb.b / 16) * 16); // N
 
             rgb_matrix_set_color(58, RGB_WHITE); // ENTER
 
