@@ -469,7 +469,7 @@ HSV rgb_to_hsv(RGB rgb) {
     } else { // impossible case
         unscaledSextupledH = 0;
     }
-    hsv.h = round(unscaledSextupledH * 255 / 6);
+    hsv.h = (int) round(unscaledSextupledH * 255 / 6);
 
     if (hsv.h < 0) hsv.h += 255;
 
