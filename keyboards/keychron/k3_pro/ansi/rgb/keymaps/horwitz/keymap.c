@@ -20,7 +20,7 @@
  * (2) Highlighting used fn-layer keys
  * (3) Granular color picking
  * (4) Suspend RGB
- * (5) Enhanced color picking
+ * (5) Complete color picking
  *
  * (1) SHORT NAME*: [DEBUG]
  *     DETAILS: When enabled, outputs the result of `uprintf` statements--these can be seen in the QMK Toolbox console.
@@ -52,7 +52,7 @@
  *     DETAILS: Turns off lighting when the laptop sleeps (and for similar(?) behavior).
  *     TO ACTIVATE: The feature is always on.
  *
- * (5) SHORT NAME: [ECP]
+ * (5) SHORT NAME: [CCP]
  *     DETAILS: Used to set the base layer to a solid pattern of any 24-bit color. The picker's current color is shown
  *              on each key of the 3x3 grid  IOP KL; ,./  . Hitting Enter (which will be white) accepts the picker's
  *              current color, setting the base layer to a solid pattern of that color. Hitting End aborts, making no
@@ -95,7 +95,7 @@
     #include "print.h"
 #endif
 
-// [ECP]
+// [CCP]
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 // TODO(?) use (a not-broken version of) these macros instead of the macros above
@@ -122,7 +122,7 @@ enum layers {
     WIN_BASE,
     WIN_FN,
     GCP, // [GCP]
-    ECP // [ECP]
+    CCP // [CCP]
 };
 
 // [GCP]
@@ -168,27 +168,27 @@ enum ctrl_keycodes {
         GRAY04, GRAY05, GRAY06, GRAY07,
         GRAY08, GRAY09, GRAY10, GRAY11,
 
-// [ECP] // meta ECP
-        TOECP,
-// [ECP]
+// [CCP] // meta CCP
+        TOCCP,
+// [CCP]
         RHI, RLI, GHI, GLI, BHI, BLI,
         RHD, RLD, GHD, GLD, BHD, BLD,
-        ECPSET
+        CCPSET
 };
 int MIN_COLOR_KEYCODE = COLOR00; // [GCP]
 int MAX_COLOR_KEYCODE = GRAY11; // [GCP]
-int MIN_ECP_CHANGE_KEYCODE = RHI; // [ECP]
-int MAX_ECP_CHANGE_KEYCODE = ECPSET; // [ECP]
+int MIN_CCP_CHANGE_KEYCODE = RHI; // [CCP]
+int MAX_CCP_CHANGE_KEYCODE = CCPSET; // [CCP]
 
 // [GCP]
 enum COLOR_SCHEME { RGB_SCHEME, GRAY_SCHEME };
 
-// [ECP]
+// [CCP]
 enum RGB_COLOR { RED, GREEN, BLUE };
 enum NIBBLE_LEVEL { HIGH, LOW };
 enum DELTA_DIR { INC, DEC };
 
-// [ECP]
+// [CCP]
 typedef struct {
     enum RGB_COLOR color;
     enum NIBBLE_LEVEL nibbleLevel;
@@ -219,7 +219,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      _______,  BT_HST1,  BT_HST2,  BT_HST3,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
      RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
      _______,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  _______,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
-     _______,            _______, TD(TD_GRAY),TOECP, OSL(GCP),BAT_LVL, NK_TOGG,  _______,  _______,  _______,  _______,            _______,  _______,  _______,  // [ECP] ("TOECP") // [GCP] ("OSL(GCP)")
+     _______,            _______, TD(TD_GRAY),TOCCP, OSL(GCP),BAT_LVL, NK_TOGG,  _______,  _______,  _______,  _______,            _______,  _______,  _______,  // [CCP] ("TOCCP") // [GCP] ("OSL(GCP)")
      _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
 
 [WIN_BASE] = LAYOUT_ansi_84(
@@ -235,7 +235,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      _______,  BT_HST1,  BT_HST2,  BT_HST3,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
      RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
      _______,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  _______,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
-     _______,            _______,  _______,  TOECP,  OSL(GCP),BAT_LVL, NK_TOGG,  _______,  _______,  _______,  _______,            _______,  _______,  _______,  // [ECP] ("TOECP") // [GCP] ("OSL(GCP)")
+     _______,            _______,  _______,  TOCCP,  OSL(GCP),BAT_LVL, NK_TOGG,  _______,  _______,  _______,  _______,            _______,  _______,  _______,  // [CCP] ("TOCCP") // [GCP] ("OSL(GCP)")
      _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
 
 // [GCP]
@@ -248,13 +248,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      COLOR03,            COLOR07,  COLOR11,  COLOR15,  COLOR19,  COLOR23,  COLOR27,  COLOR31,  COLOR35,  COLOR39,  COLOR43,            COLOR47,  XXXXXXX,  XXXXXXX, // keycode 73 is lit RED, though pressing any XXXXXXX aborts color choosing
      XXXXXXX,  XXXXXXX,  XXXXXXX,                                XXXXXXX,                                XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX),
 
-// [ECP]
-[ECP] = LAYOUT_ansi_84(
+// [CCP]
+[CCP] = LAYOUT_ansi_84(
      // TODO go back to WIN_BASE (instead of MAC_BASE) as appropriate
      XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,
      XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,            XXXXXXX,
      XXXXXXX,  RHI,      RLI,      GHI,      GLI,      BHI,      BLI,      XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,            XXXXXXX,
-     XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,            ECPSET,             XXXXXXX,
+     XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,            CCPSET,             XXXXXXX,
      XXXXXXX,            RHD,      RLD,      GHD,      GLD,      BHD,      BLD,      XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,            XXXXXXX,  XXXXXXX,TO(MAC_BASE),
      XXXXXXX,  XXXXXXX,  XXXXXXX,                                XXXXXXX,                                XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX)
 };
@@ -432,16 +432,16 @@ enum COLOR_SCHEME get_color_scheme(uint16_t keycode) {
     }
 }
 
-// [ECP]
-// NB: does NOT include TOECP (which is not on the ECP layer)
+// [CCP]
+// NB: does NOT include TOCCP (which is not on the CCP layer)
 bool is_ecp_change_keycode(uint16_t keycode) {
-    return keycode >= MIN_ECP_CHANGE_KEYCODE && keycode <= MAX_ECP_CHANGE_KEYCODE;
+    return keycode >= MIN_CCP_CHANGE_KEYCODE && keycode <= MAX_CCP_CHANGE_KEYCODE;
 }
 
-// [ECP]
+// [CCP]
 int index_in_byte = -1; // 0-15 value equal to the last hex value edited (one of RH, RL, GH, GL, BH, BL)
 
-// [ECP]
+// [CCP]
 HSV rgb_to_hsv(RGB rgb) {
     HSV hsv;
 
@@ -476,10 +476,10 @@ HSV rgb_to_hsv(RGB rgb) {
     return hsv;
 }
 
-// [ECP]
+// [CCP]
 RGB ecpRgb;
 
-// [ECP]
+// [CCP]
 ecp_key_t get_ecp_key(uint16_t keycode) {
     ecp_key_t ecp_key;
 
@@ -545,10 +545,10 @@ ecp_key_t get_ecp_key(uint16_t keycode) {
     return ecp_key;
 }
 
-// [ECP]
+// [CCP]
 layer_state_t layer_state_set_user(layer_state_t state) {
     switch (get_highest_layer(state)) {
-        case ECP:
+        case CCP:
             index_in_byte = -1; // clear the white lights from the top row
             break;
         default:
@@ -576,15 +576,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
         }
         retval = false;
-    // [ECP]
+    // [CCP]
     } else if (is_ecp_change_keycode(keycode)) {
         if (record -> event.pressed) {
-            if (keycode == ECPSET) {
+            if (keycode == CCPSET) {
                 rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
                 HSV hsv = rgb_to_hsv(ecpRgb);
-//                uprintf("ECPSET: ecpRgb=(%d,%d,%d) -> hsv=(%d,%d,%d)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b, hsv.h, hsv.s, hsv.v);
+//                uprintf("CCPSET: ecpRgb=(%d,%d,%d) -> hsv=(%d,%d,%d)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b, hsv.h, hsv.s, hsv.v);
                 rgb_matrix_sethsv(hsv.h, hsv.s, hsv.v);
-                layer_off(ECP);
+                layer_off(CCP);
             } else {
 //                uprintf("keycode-RHI: %2u\n", keycode - RHI);
 //                uprintf(">> ecpRgb: (%2u,%2u,%2u)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
@@ -659,11 +659,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 //            uprintf("iib: %2u\n", index_in_byte);
         }
         retval = false;
-    // [ECP]
-    } else if (keycode == TOECP) {
+    // [CCP]
+    } else if (keycode == TOCCP) {
         ecpRgb = hsv_to_rgb_nocie(rgb_matrix_get_hsv());
 //        uprintf("setting ecpRgb: (%d,%d,%d)\n", ecpRgb.r, ecpRgb.g, ecpRgb.b);
-        layer_on(ECP);
+        layer_on(CCP);
         retval = false;
     } else {
         retval = true; // process all other keycodes normally
@@ -740,8 +740,8 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             break;
         }
 
-        // [ECP]
-        case ECP: {
+        // [CCP]
+        case CCP: {
             // set A,S to R level; D,F to G level; G,H to B level; set ENTER white; set some of top row to white (see
             // below); set QWERTY ZXCVBN as described above; set all else black
             rgb_matrix_set_color_all(RGB_OFF); // RGB_OFF == RGB_BLACK // set keys not changed below to black
