@@ -332,7 +332,7 @@ void keyboard_post_init_user(void) {
     for (int i = 0; i < COLOR_PALETTE_SIZE; ++i) {
         // NB: requires COLOR_PALETTE_SIZE < 512 or rvalue for largest i will be 256 (and hues must fall in [0,255])
         color_picker_color_hues[i] = round(i * 256.0 / COLOR_PALETTE_SIZE);
-        HSV hsv = { color_picker_color_hues[i], 255, 255 };
+        HSV hsv = { .h=color_picker_color_hues[i], .s=255, .v=255 };
         color_picker_color_rgbs[i] = hsv_to_rgb_nocie(hsv);
     }
     for (int i = 0; i < GRAY_PALETTE_SIZE; ++i) {
