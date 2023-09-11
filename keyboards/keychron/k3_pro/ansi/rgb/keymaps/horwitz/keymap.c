@@ -696,20 +696,9 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             RGB rgb = hsv_to_rgb_nocie(rgb_matrix_get_hsv());
             // TODO what exactly _is_ the color returned by rgb_matrix_get_hsv()? is this some overall color (as opposed
             //      to per-key ones)?
-            RGB complement_rgb;
-            /*
-             TODO? construct complement_rgb in a simpler / more-elegant fashion (e.g., a one-liner)--but
-            "RGB complement_rgb = { 255 - rgb.r, 255 - rgb.g, 255 - rgb.b };"
-            seems to swap r and g--i.e., make complement_rgb.r = 255 - rgb.g, c_r.g = 255-r.r, c_r.b = 255-r.b
-            (which, BTW, doesn't make sense w/RGB (a.k.a. cRGB) in quantum/color.h (if that's even the relevant def...))
-            (presumably "RGB complement_rgb = { 255 - rgb.g, 255 - rgb.r, 255 - rgb.b };" could solve this, but that
-            seems unnatural / potentially confusing.)
-            */
             // TODO? if all r,g,b are close to 255/2, the complement will be close to (and hard to discern from) the
             //       original color (should this be changed?)
-            complement_rgb.r = 255 - rgb.r;
-            complement_rgb.g = 255 - rgb.g;
-            complement_rgb.b = 255 - rgb.b;
+            RGB complement_rgb = { .r = 255 - rgb.r, .g = 255 - rgb.g, .b = 255 - rgb.b };
             for (int i = 0; i < layer_used_indices_size[layer]; ++i) {
                 rgb_matrix_set_color(
                     layers_used_indices[layer][i],
