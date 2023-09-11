@@ -89,7 +89,7 @@
 #define DEBUG false
 
 #include QMK_KEYBOARD_H
-#include <math.h> // for round() // [GCP]
+#include <math.h> // for round() // [GCP] // [CCP]
 // [DEBUG]
 #if DEBUG
     #include "print.h"
