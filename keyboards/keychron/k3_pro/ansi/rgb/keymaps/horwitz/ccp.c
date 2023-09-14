@@ -4,6 +4,26 @@
 #include "ccp.h"
 //#include "ctrlkeycodes.h"
 
+/*
+ * Used to set the base layer to a solid pattern of any 24-bit color. The picker's current color is shown on each key of
+ * the 3x3 grid  IOP KL; ,./  . Hitting Enter (which will be white) accepts the picker's current color, setting the base
+ * layer to a solid pattern of that color. Hitting End aborts, making no change in the base layer's color. A & S show
+ * the red contribution (the two highest bytes in the 6-byte RGB representation; note that A and S's colors are the
+ * same), D & F show the green contribution, and G & H show the blue contribution. Q increases the red contribution by
+ * 16 and W increases it by 1--in both cases stopping at the max of 255. Similarly Z and X respectively lower the red
+ * contribution by 16 and 1, stopping at the min of 0. Similarly E,R,C,V raise/lower green by 16 or 1; T,Y,B,N
+ * raise/lower blue by 16 or 1. Q,E,T show what would happen if red, green, or blue (respectively) were maxed out with
+ * the current settings kept for the other components; Z,C,B show what would happen if red, green, or blue
+ * (respectively) were set to 0 with the current settings kept for the other components; W,R,Y show what would happen if
+ * red, green, or blue (respectively) were brought up to the nearest multiple of 16 above the current red, green, or
+ * blue (as appropriate) value (unless that's 256, in which case 255 is used); X,V,N show what would happen if red,
+ * green, or blue (respectively) were brought down to the nearest multiple of 16 below the current red, green, or blue
+ * (as appropriate) value. When any of QWERTYZXCVBN is pressed, the 16 top-row characters (Esc, F1, F2, ...) light up to
+ * show the current modifier's value, in { 0, 1, ..., 15 }: e.g., if Q is pressed and red's high byte is at 5, it will
+ * go up to 6 and the first 7 keys in the top row (Esc, F1, ..., F6) will light up. The representation is 0-based--i.e.,
+ * 1 light represents a 0, 2 lights represent a 1, ..., all 16 lights represent a 15.
+ */
+
 // TODO(?) move (MIN|MAX)_CCP_CHANGE_KEYCODE definitions to ccp.h
 int MIN_CCP_CHANGE_KEYCODE = RHI;
 int MAX_CCP_CHANGE_KEYCODE = CCPSET;
