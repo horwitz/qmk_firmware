@@ -1,5 +1,5 @@
 #include QMK_KEYBOARD_H
-#include <math.h> // for round() // [GCP] // [CCP]
+#include <math.h> // for round()
 #include "layers.h"
 #include "ccp.h"
 //#include "ctrlkeycodes.h"
@@ -22,6 +22,9 @@
  * show the current modifier's value, in { 0, 1, ..., 15 }: e.g., if Q is pressed and red's high byte is at 5, it will
  * go up to 6 and the first 7 keys in the top row (Esc, F1, ..., F6) will light up. The representation is 0-based--i.e.,
  * 1 light represents a 0, 2 lights represent a 1, ..., all 16 lights represent a 15.
+ *
+ * NOTE: The feature creates a fourth layer (layer 3) (meant only to be accessed for the purposes mentioned above).
+ *
  */
 
 // TODO(?) move (MIN|MAX)_CCP_CHANGE_KEYCODE definitions to ccp.h
