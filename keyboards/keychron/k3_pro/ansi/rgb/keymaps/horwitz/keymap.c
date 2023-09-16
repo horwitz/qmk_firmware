@@ -182,20 +182,10 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     return layer_state_set_user_ccp(state);
 }
 
-// TODO(?) simplify--i.e.,
-// return process_record_user_gcp(keycord, record) /* [GCP] */ && process_record_user_ccp(keycord, record); /* [CCP] */
+// note potential short circuit
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    // [GCP]
-    if (!process_record_user_gcp(keycode, record)) {
-        return false;
-    }
-
-    // [CCP]
-    if (!process_record_user_ccp(keycode, record)) {
-        return false;
-    }
-
-    return true;
+    return process_record_user_gcp(keycode, record) && // [GCP]
+        process_record_user_ccp(keycode, record); // [CCP]
 }
 
 //uint8_t last_layer = -1;
