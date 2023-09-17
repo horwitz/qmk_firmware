@@ -166,7 +166,7 @@ bool process_record_user_gcp(uint16_t keycode, keyrecord_t *record) {
 }
 
 void rgb_matrix_indicators_advanced_user_gcp(void) {
-    rgb_matrix_set_color_all(RGB_OFF); // RGB_OFF == RGB_BLACK // keys not changed below to black
+    rgb_matrix_set_color_all(RGB_OFF); // RGB_OFF == RGB_BLACK // set keys not changed below to black
     rgb_matrix_set_color(73, RGB_RED); // set End to red // TODO? different color here
 
     for (int i = 0; i < COLOR_PALETTE_SIZE; ++i) {
