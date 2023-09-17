@@ -24,7 +24,6 @@
  * 1 light represents a 0, 2 lights represent a 1, ..., all 16 lights represent a 15.
  *
  * NOTE: The feature creates a fourth layer (layer 3) (meant only to be accessed for the purposes mentioned above).
- *
  */
 
 // TODO(?) move (MIN|MAX)_CCP_CHANGE_KEYCODE definitions to ccp.h
