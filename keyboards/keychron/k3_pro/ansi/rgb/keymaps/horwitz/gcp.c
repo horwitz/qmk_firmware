@@ -131,13 +131,16 @@ bool is_color_picker_color_keycode(uint16_t keycode) {
 }
 
 enum COLOR_SCHEME get_color_scheme(uint16_t keycode) {
+    enum COLOR_SCHEME retval;
     if (keycode >= COLOR00 && keycode <= COLOR47) {
-        return RGB_SCHEME;
+        retval = RGB_SCHEME;
     } else if (keycode >= GRAY00 && keycode <= GRAY11) {
-        return GRAY_SCHEME;
+        retval = GRAY_SCHEME;
     } else {
-        return -1; // this should never happen... (TODO handle some other way?)
+        retval = -1; // this should never happen... (TODO handle some other way?)
     }
+
+    return retval;
 }
 
 bool process_record_user_gcp(uint16_t keycode, keyrecord_t *record) {
