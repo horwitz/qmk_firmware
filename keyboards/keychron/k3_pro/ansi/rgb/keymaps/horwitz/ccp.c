@@ -139,14 +139,9 @@ ccp_key_t get_ccp_key(uint16_t keycode) {
 }
 
 layer_state_t layer_state_set_user_ccp(layer_state_t state) {
-    // TODO replace switch with if
-    switch (get_highest_layer(state)) {
-        case CCP:
-            index_in_byte = -1; // clear the white lights from the top row
-            break;
-        default:
-            break;
-        }
+    if (get_highest_layer(state) == CCP) {
+        index_in_byte = -1; // clear the white lights from the top row
+    }
 
     return state;
 }
