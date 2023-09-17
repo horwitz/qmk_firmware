@@ -192,16 +192,14 @@ bool process_record_user_ccp(uint16_t keycode, keyrecord_t *record) {
                          absDelta = 1;
                          break;
                 }
-                int delta = -1;
                 switch (ccp_key.deltaDir) {
                     case INC:
-                        delta = absDelta;
+                        component = addBounded(component, absDelta);
                         break;
                     case DEC:
-                        delta = -absDelta;
+                        component = subtractBounded(component, absDelta);
                         break;
                 }
-                component = bound(component + delta);
 
                 switch (ccp_key.nibbleLevel) {
                     case HIGH:

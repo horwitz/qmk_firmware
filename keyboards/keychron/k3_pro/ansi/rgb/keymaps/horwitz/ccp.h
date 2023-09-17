@@ -17,10 +17,17 @@
         __typeof__ (b) _b = (b); \
     _a > _b ? _a : _b; })
 */
-// if a is in [0, 255], returns a; if a < 0, return 0; if a > 255, return 255
-#define bound(a) \
+// compute a + b, ensuring that the value is at most 255
+// (assumes b <= 255)
+#define addBounded(a,b) \
     ({ __typeof__ (a) _a = (a); \
-    max(min(_a, 255), 0); })
+        __typeof__ (b) _b = (b); \
+    _a > 255 - _b ? 255 : _a + _b; })
+// compute a - b, ensuring that the value is at least 0
+#define subtractBounded(a,b) \
+    ({ __typeof__ (a) _a = (a); \
+        __typeof__ (b) _b = (b); \
+    _a < _b ? 0 : _a - _b; })
 
 enum RGB_COLOR { RED, GREEN, BLUE };
 enum NIBBLE_LEVEL { HIGH, LOW };
