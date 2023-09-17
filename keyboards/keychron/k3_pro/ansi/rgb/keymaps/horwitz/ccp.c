@@ -165,9 +165,7 @@ bool process_record_user_ccp(uint16_t keycode, keyrecord_t *record) {
                 // if RLI, then ++(ccpRgb.r), index_in_byte = ccpRgb.r % 16
                 // ...
                 // if BLD, then --(ccpRgb.b), index_in_byte = ccpRgb.b % 16
-                // TODO! is int16_t the right type?
-                // TODO? don't initialize?
-                int16_t component = -1; // whichever of ccpRgb.r, .g, or .b is going to change
+                uint8_t component; // whichever of ccpRgb.r, .g, or .b is going to change
 
                 ccp_key_t ccp_key = get_ccp_key(keycode);
 
@@ -181,6 +179,8 @@ bool process_record_user_ccp(uint16_t keycode, keyrecord_t *record) {
                     case BLUE:
                         component = ccpRgb.b;
                         break;
+                    default:
+                        component = 0; // impossible case
                 }
 
                 int absDelta = -1;
