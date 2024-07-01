@@ -20,8 +20,7 @@
 #define RGB_DISABLE_WHEN_USB_SUSPENDED
 
 /* DIP switch */
-#define DIP_SWITCH_PINS \
-    { A8 }
+#define DIP_SWITCH_PINS { A8 }
 
 /* Increase I2C speed to 1000 KHz */
 #define I2C1_TIMINGR_PRESC 0U
@@ -48,10 +47,10 @@
 #        define LED_DRIVER_SHUTDOWN_PIN C14
 
 #        define HOST_LED_MATRIX_LIST \
-            { 16, 17, 18 }
+            { 15, 16, 17 }
 
 #        define BAT_LEVEL_LED_LIST \
-            { 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 }
+            { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 
 /* Backlit disable timeout when keyboard is disconnected(unit: second) */
 #        define DISCONNECTED_BACKLIGHT_DISABLE_TIMEOUT 40
@@ -77,8 +76,10 @@
 #define FEE_DENSITY_BYTES FEE_PAGE_SIZE
 #define DYNAMIC_KEYMAP_EEPROM_MAX_ADDR 2047
 
-/* Old default behavior of mod-taps */
-#define HOLD_ON_OTHER_KEY_PRESS
+/* Encoder Configuration */
+#ifdef ENCODER_ENABLE
+#    define ENCODER_DEFAULT_POS 0x3
+#endif
 
 /* Factory test keys */
 #define FN_KEY2 MO(4)
